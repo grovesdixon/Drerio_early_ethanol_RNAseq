@@ -1,0 +1,410 @@
+#RNAseq_data_processing_walkthrough.txt
+#last updated 4-18-19
+
+
+###################
+## DOWNLOAD DATA ##
+###################
+
+#TRIMMED READS ARE AVAILABLE HERE: /corral-repl/utexas/tagmap/dixon_backups/zebrafish_rnaseq/trimmed_reads
+#If you download trimmed reads skip to section 'MAPPING WITH STAR' below
+
+
+#DOWNLOAD FROM GSAF (this only works if you just got reads back from sequencer)
+gsaf_download.sh "http://gsaf.s3.amazonaws.com/JA15085.SA15036.html?AWSAccessKeyId=AKIAJPRTJ4ZGKJIUA6XA&Expires=1426908864&Signature=DxxlNXXrbvZlA0k6%2Bx9U1HjltjA%3D"
+
+
+#Raw read files are stored on corral here (5-13-17): /corral-repl/utexas/tagmap/dixon_backups/zebrafish_rnaseq/raw_read_backups
+mkdir raw_reads
+cd raw_reads
+cp *.tgz /corral-repl/utexas/tagmap/dixon_backups/zebrafish_rnaseq/raw_read_backups
+
+#Decompress the tgz files and unzip the gzipped fastqs inside
+#eg
+tar -zxvf run1_JA15926_SA15275.tgz
+cd run1_JA15926_SA15275_12012015
+>unzip;for file in *.gz; do echo gunzip $file >> unzip;done
+launcher_creator.py -n unzip -j unzip -q normal -t 00:15:00 -a tagmap
+sbatch unzip.slurm
+
+######################################################
+#### ORGANIZE READS FROM SEPARATE SEQUENCING RUNS ####
+######################################################
+
+
+#The data are from two experiments and were sequenced across four sequencing runs
+#The following commands will organize the files based on sequencing runs (1-4) so they are ready to trim
+
+
+#make symbolic links for each fasta and run 1 files 
+ln -s ../raw_reads/run1_JA15926_SA15275_12012015/*.fastq . 
+ls *.fastq | wc -l
+		#50
+
+for file in *.fastq; do echo "mv $file ${file/001.fastq}run1.fq"; done
+
+#execute the commands
+#now every fastq file from run1 is labeled with run1.fq at end
+
+#now repeat for runs 2 - 4
+
+#run2
+ln -s ../raw_reads/run2_JA15926_SA15276_01172016/*fastq .
+for file in *.fastq; do mv $file ${file/001.fastq}run2.fq; done
+
+#run3
+ln -s ../raw_reads/run3_JA16295_SA16092/*.fastq .
+for file in *.fastq; do mv $file ${file/001.fastq}run3.fq; done
+
+
+#run4
+ln -s ../raw_reads/run4_JA16295_SA16093/*.fastq .
+for file in *.fastq; do mv $file ${file/001.fastq}run4.fq; done
+
+#Now all files are labeled with run number and .fq
+
+#Check that you have all files
+ls *run1.fq | wc -l
+	#50
+ls *run2.fq | wc -l
+	#50
+ls *run3.fq | wc -l
+	#58
+ls *run4.fq | wc -l
+	#58
+
+
+#Explanation of experiments and sequencing runs:
+Experiment1:
+	25 total samples: (five 6hr, five each 8hr control and ethanol, five each 10hr control and ethanol)
+	Sequencing runs for experiment1:
+		run1:
+			50 fastq files, R1 and R2 for each of the 25 samples
+		run2:
+			50 fastq files, R1 and R2 for each of the 25 samples
+Experiment2:
+	30 total samples: (five each for x3 timepoints (8hr, 10hr, 14hr) x2 treatments (control, ethanol)
+	Sequencing runs for experiment2:
+		run3:
+			58 fastq files representing 29! different samples
+		run4:
+			58 fastq files representing 29! different samples
+
+#!Note that each run in experiment 2 covers only 29 samples
+#This is because two samples E8h-5 and E10h-5 were not spread across the two runs
+#E8h-5 was sequenced only in run3
+#E10h-5 was sequenced only in run4
+ls E8h-5*
+		E8h-5_S29_R1_run3.fq  E8h-5_S29_R2_run3.fq
+ls E10h-5*
+		E10h-5_S27_R1_run4.fq  E10h-5_S27_R2_run4.fq
+
+
+
+####################
+## TRIMMING READS ##
+####################
+
+#############################################################################################
+#NOTES ON READ TRIMMING:
+
+#GSAF uses NEB-Next
+#The relevent sequences are shown below:
+
+NEBNext Adapter:
+5 ́-/5Phos/GAT CGG AAG AGC ACA CGT CTG AAC TCC AGT C/ideoxyU/A CAC TCT TTC CCT ACA CGA CGC TCT TCC GAT C*T-3 ́
+
+NEBNext Adapter showing secondary structure:
+
+A-CACTCTTTCCCTACACGAC-
+|                     |GCTCTTCCGATCT-3'
+|                     |CGAGAAGGCTAG -5'
+U-CTGACCTCAAGTCTGCACA-
+
+
+NEBNext Index primer 1
+5́CAAGCAGAAGACGGCATACGAGATCGTGATGTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT3́
+
+
+#*See NEB-Next Schematic powerpoint to show the final product
+
+
+#the result is that we want to trim this from both the forward and reverse reads
+GATCGGAAGAGC
+
+
+#generic cutadapt command for paired end read trimming:
+cutadapt -a ADAPTER_FWD -A ADAPTER_REV -o out.1.fastq -p out.2.fastq reads.1.fastq reads.2.fastq
+
+
+#############################################################################################
+
+
+#RUNNING THE TRIMMING
+#check you have all forward reads
+ls *R1_*.fq | wc -l
+	#108
+ls *R1_*.fq | wc -l
+	#108
+
+#set up trimming commands for each set of paired end reads
+>trim;for file in $(ls *R1_*.fq); do pair=${file/R1/R2}; echo cutadapt -a GATCGGAAGAGC -a AAAAAAAAAAAAAAAAAAAA -a TTTTTTTTTTTTTTTTTTTT -A GATCGGAAGAGC -A AAAAAAAAAAAAAAAAAAAA -A TTTTTTTTTTTTTTTTTTTT --minimum-length 25 --maximum-length 300 -o ${file/.fq/}.trim -p ${pair/.fq/}.trim $file $pair >> trim; done
+
+#-a trim from 3' end; -A trim from 3' from paired-end read; -o output file; -p paired-end file 
+
+launcher_creator.py -n trim -j trim -a tagmap -N 4 -q normal -t 10:00:00 -e alfire.sidik@gmail.com 
+
+sbatch trim.slurm
+
+ls *.trim | wc -l
+		#216
+
+
+
+########################
+## PREPARE REFERENCES ##
+########################
+
+#FIRST DOWNLOAD REFERENCES
+cdw
+mkdir drerio_ensemble_ref_v10
+cd mkdir drerio_ensemble_ref_v10
+wget ftp://ftp.ensembl.org/pub/release-89/fasta/danio_rerio/dna/Danio_rerio.GRCz10.dna_sm.toplevel.fa.gz
+wget ftp://ftp.ensembl.org/pub/release-89/gtf/danio_rerio/Danio_rerio.GRCz10.89.gtf.gz
+gunzip *.gz
+
+
+#build a star index file for the genome
+#note this only needs to be done once. Your star genome directory is stored in $WORK
+STAR --runMode genomeGenerate --genomeDir ./ --genomeFastaFiles Danio_rerio.GRCz10.dna_sm.toplevel.fa --sjdbGTFfile Danio_rerio.GRCz10.89.gtf -sjdbGTFtagExonParentTranscript Parent --sjdbOverhang 74
+
+
+#ADD THESE TO BASH_PROFILE
+drerioStarGenomeDir=/work/02260/grovesd/lonestar/drerio_ensemble_ref_v10
+drerioGenomeRef=/work/02260/grovesd/lonestar/drerio_ensemble_ref_v10/Danio_rerio.GRCz10.dna_sm.toplevel.fa
+drerioGtf=/work/02260/grovesd/lonestar/drerio_ensemble_ref_v10/Danio_rerio.GRCz10.89.gtf
+
+
+
+#######################
+## MAPPING WITH STAR ##
+#######################
+
+#make dummy files for the two weird ones
+touch E8h-5_S29_R1_run4.trim
+touch E8h-5_S29_R2_run4.trim
+touch E10h-5_S27_R1_run3.trim
+touch E10h-5_S27_R2_run3.trim
+
+ls *.trim | wc -l
+	#220 (4 per each of the 55 samples)
+
+
+#set up mapping
+#!note I tried outputting with BAM SortedByCoordinate, but picard said the files were not sorted. So instead output as unsorted, then sort with Samtools
+>starMapping
+for file in *R1*run1.trim
+do echo STAR --runMode alignReads --runThreadN 1 --outFileNamePrefix ${file/_R1_run1.trim} --outReadsUnmapped Fastx --outSAMtype BAM Unsorted --genomeDir $drerioStarGenomeDir --readFilesIn $file,${file/run1/run2} ${file/R1/R2},${file/R1_run1/R2_run2} >> starMapping; done
+
+for file in $(ls *R1*run3.trim)
+do echo STAR --runMode alignReads --runThreadN 1 --outFileNamePrefix ${file/_R1_run3.trim} --outReadsUnmapped Fastx --outSAMtype BAM Unsorted --genomeDir $drerioStarGenomeDir --readFilesIn $file,${file/run3/run4} ${file/R1/R2},${file/R1_run3/R2_run4} >> starMapping; done
+
+wc -l starMapping
+	#55 starMapping
+
+launcher_creator.py -n starMapping -j starMapping -q normal -t 12:00:00 -N 11 -w 5 -a $allo -e $email
+sbatch starMapping.slurm
+
+ls *out.bam | wc -l
+	#55
+
+#Get the mapping efficiencies
+>mapping_efficiencies.txt;for file in *final.out; do eff=$(grep 'Uniquely mapped reads %' $file | awk '{print $6}'); echo -e "${file/Log.final.out/}\t$eff" >> mapping_efficiencies.txt; done
+sed -i.bak 's/%//' mapping_efficiencies.txt 
+
+
+###########################
+## REMOVE PCR DUPLICATES ##
+###########################
+
+#COORDINATE SORT THE BAM FILES
+module load samtools
+>coord_sort
+for file in *out.bam
+do echo samtools sort -o ${file/Aligned.out.bam/}_coordSorted.bam -O bam -T ${file/Aligned.out.bam/} $file >>coord_sort
+done
+launcher_creator.py -n coord_sort -j coord_sort -q normal -N 1 -w 55 -t 3:00:00 -a $allo -e $email
+sbatch coord_sort.slurm
+
+
+
+#NOW USE PICARD TO REMOVE DUPLICATES IN THE SORTED BAM FILES
+module load java
+>removeDups;for file in *_coordSorted.bam; do echo "java -Xms4g -jar /work/02260/grovesd/lonestar/picard/picard-tools-1.119/MarkDuplicates.jar\
+ INPUT=$file\
+ OUTPUT=${file/_coordSorted.bam/}_dupsRemoved.bam\
+ METRICS_FILE=${file/_coordSorted.bam/}_dupMetrics.txt\
+ REMOVE_DUPLICATES=true" >> removeDups; done
+launcher_creator.py -n removeDups -j removeDups -t 10:00:00 -q normal -N 1 -a $allo -w 2
+sbatch removeDups.slurm
+
+
+#GATHER THE REMOVAL METRIC DATA
+>dupRemovalMetrics.tsv;for file in *dupMetrics.txt; do pct=$(grep "Unknow" $file | cut -f 8);echo -e "$file\t$pct" >>dupRemovalMetrics.tsv; done
+
+
+####################################
+## GETTING READ COUNTS WITH HTSEQ ##
+####################################
+
+#NAME SORT THE BAM FILES AND OUTPUT AS SAM
+>name_sort
+for file in *_dupsRemoved.bam
+do echo "samtools sort -n -O sam -o ${file/_dupsRemoved.bam/nameSorted.sam} $file" >> name_sort
+done
+
+launcher_creator.py -n name_sort -j name_sort -q normal -N 1 -w 55 -t 3:00:00 -a $allo -e $email
+sbatch name_sort.slurm
+
+
+#--------- RUN COUNTS WITH HTSEQ ---------#
+drerioGtf="/work/02260/grovesd/stampede2/drerio_ensemble_ref_v10/Danio_rerio.GRCz10.89.gtf"
+echo $drerioGtf
+#this should return the path to the gtf, so now you can always just say $zebraGff in your commands to use it
+
+>docounts
+for file in *nameSorted.sam
+ do echo "htseq-count -t gene -m intersection-nonempty -s reverse $file $drerioGtf > ${file/nameSorted.sam/_counts.tsv}">>docounts
+done
+
+
+launcher_creator.py -n zebraNameCounts -j docounts -q normal -t 4:00:00 -N 1 -w 24 -a $allo -e $email
+sbatch docounts.slurm
+
+
+#NOW ASSEMBLE THE COUNTS INTO A SINGLE TABLE
+assemble_htseq_counts.py -i *counts.tsv -o rnaseq_gene_counts.txt -pos 1
+
+
+#scp the counts file to your Mac and analze with R
+
+#--------- RUN COUNTS WITH FEATURE COUNTS ---------#
+
+
+GENE_ID="gene_id"
+drerioGtf="/work/02260/grovesd/stampede2/drerio_ensemble_ref_v10/Danio_rerio.GRCz10.89.gtf"
+echo "/work/02260/grovesd/stampede2/subread-1.6.3-source/bin/featureCounts -a $drerioGtf -t gene -g $GENE_ID -o feature_counts_out.txt -T 64 --primary *Removed.bam" > runFeatureCounts
+
+
+/work/02260/grovesd/stampede2/subread-1.6.3-source/bin/featureCounts -a /work/02260/grovesd/stampede2/drerio_ensemble_ref_v10/Danio_rerio.GRCz10.89.gtf -t gene -g gene_id -o feature_counts_out.txt -T 64 --primary *Removed.bam
+
+
+###############################################
+## GET READ COUNTS FOR EACH STEP OF PIPELINE ##
+###############################################
+
+#RAW COUNTS
+wc -l *.fastq |\
+ awk '{split($2, a, "_")
+ print a[1]"\t"$1/4"\trawCounts"}' |\
+ grep -v total > raw_read_counts.tsv &
+
+
+#POST TRIMMING READ COUNT
+wc -l *.trim |\
+ awk '{split($2, a, "_")
+ print a[1]"\t"$1/4"\ttrimmedCounts"}' |\
+ grep -v total > trimmed_read_counts.tsv &
+
+
+#---- MAPPED BEFORE DUP-REMOVAL
+>getInitialAlignment
+for file in *_coordSorted.bam
+do echo "samtools flagstat $file > ${file/_sorted.bam/}_prededup_flagstats.txt" >> getInitialAlignment
+done
+
+
+#format properly paired reads
+>prededup_properly_paired_count.tsv
+for file in *prededup_flagstats.txt
+do pp=$(grep "properly paired" $file); echo -e "$file\t$pp" |\
+ awk '{split($1, a, "_")
+ split($7, b, "(")
+ print a[1]"\t"$2"\tpredupPropPaired"}' >> prededup_properly_paired_count.tsv
+ done
+
+#format total reads
+>prededup_mapped_count.tsv
+for file in *prededup_flagstats.txt
+do pp=$(grep "mapped" $file | head -n 1)
+ echo -e "$file\t$pp" |\
+ awk '{split($1, a, "_")
+ print a[1]"\t"$2"\tpredupMapped"}' >> prededup_mapped_count.tsv
+ done
+
+
+
+#---- MAPPED POST DUP REMOVAL
+>getDupRemAlignment
+for file in *dupsRemoved.bam
+do echo "samtools flagstat $file > ${file/.bam/}_post_dedup_flagstats.txt &" >> getDupRemAlignment
+done
+
+#format properly paired reads
+>dedup_properly_paired_count.tsv
+for file in *_post_dedup_flagstats.txt
+do pp=$(grep "properly paired" $file)
+ echo -e "$file\t$pp" |\
+ awk '{split($1, a, "_")
+ print a[1]"\t"$2"\tdedupPropPair"}' >> dedup_properly_paired_count.tsv
+done
+
+#format total reads
+>dedup_mapped_count.tsv
+for file in *_post_dedup_flagstats.txt
+do pp=$(grep "mapped" $file | head -n 1)
+ echo -e "$file\t$pp" |\
+ awk '{split($1, a, "_")
+ print a[1]"\t"$2"\tdedupMapped"}' >> dedup_mapped_count.tsv
+ done
+
+
+#format mapping efficiencies
+>dedup_mapping_eff.tsv
+for file in *_post_dedup_flagstats.txt
+do pp=$(grep "mapped" $file | head -n 1)
+echo -e "$file\t$pp" |\
+ awk '{split($1, a, "_")
+ split($6, b, "(")
+ print a[1]"\t"b[2]"\tdedupEff"}' >> dedup_mapping_eff.tsv
+done
+
+#COUNTED ON GENES
+total_gene_counts.R rnaseq_gene_counts.txt
+
+
+
+#FILES WITH READ COUNTS:
+
+dedup_mapped_count.tsv
+dedup_mapping_eff.tsv
+dedup_properly_paired_count.tsv
+gene_count_sums.tsv
+prededup_mapped_count.tsv
+prededup_properly_paired_count.tsv
+trimmed_read_counts.tsv
+
+#concatenate them together
+cat *.tsv > all_pipeline_counts.txt
+
+
+#Final results files from pipeline:
+#send these to Drerio_early_ethanol_RNAseq/datasets/
+rnaseq_gene_counts.txt
+all_pipeline_counts.txt
+
+
+#From here follow steps in analysis_steps.txt
+
+
+
