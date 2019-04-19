@@ -1,5 +1,7 @@
 #analysis_steps.txt
 #steps for running analyses and figure plotting from RNA counts data
+#analyses are sorted into subdirectories in the repository
+
 
 1. initialize_counts
 	initialize_counts_step1_normalize.R

@@ -1,0 +1,15 @@
+ensembl_gene_id	external_gene_name	description	chromosome_name	start_position	end_position
+ENSDARG00000036028	arrdc3b	arrestin domain containing 3b [Source:ZFIN;Acc:ZDB-GENE-040912-182]	10	43761480	43771447
+ENSDARG00000038785	abcf2a	ATP-binding cassette, sub-family F (GCN20), member 2a [Source:ZFIN;Acc:ZDB-GENE-030131-8714]	2	32505554	32513538
+ENSDARG00000040712	adprh	ADP-ribosylarginine hydrolase [Source:ZFIN;Acc:ZDB-GENE-040801-190]	12	15148618	15196223
+ENSDARG00000041060	lgals9l3	lectin, galactoside-binding, soluble, 9 (galectin 9)-like 3 [Source:ZFIN;Acc:ZDB-GENE-040718-159]	15	31054200	31067589
+ENSDARG00000042637	tert	telomerase reverse transcriptase [Source:ZFIN;Acc:ZDB-GENE-080405-1]	19	627899	642878
+ENSDARG00000052155	lrrc8ab	leucine rich repeat containing 8 VRAC subunit Ab [Source:ZFIN;Acc:ZDB-GENE-060531-43]	5	64840656	64850497
+ENSDARG00000053129	carhsp1	calcium regulated heat stable protein 1 [Source:ZFIN;Acc:ZDB-GENE-040426-1479]	3	27798094	27831815
+ENSDARG00000063229	xpo1b	exportin 1 (CRM1 homolog, yeast) b [Source:ZFIN;Acc:ZDB-GENE-070530-6]	17	23964132	23988404
+ENSDARG00000075536	cpne1	copine I [Source:ZFIN;Acc:ZDB-GENE-030131-3562]	11	26375979	26401674
+ENSDARG00000098608	AL840638.1		11	6322998	6324302
+ENSDARG00000098733	pxdn	peroxidasin [Source:ZFIN;Acc:ZDB-GENE-140415-2]	17	51517750	51612088
+ENSDARG00000102906	hibadha	3-hydroxyisobutyrate dehydrogenase a [Source:ZFIN;Acc:ZDB-GENE-040801-264]	19	19599528	19657539
+ENSDARG00000104687	slc16a9b	solute carrier family 16, member 9b [Source:ZFIN;Acc:ZDB-GENE-040801-69]	12	7589193	7607114
+ENSDARG00000104825	trim35-7	tripartite motif containing 35-7 [Source:ZFIN;Acc:ZDB-GENE-050522-333]	3	5420406	5433392
