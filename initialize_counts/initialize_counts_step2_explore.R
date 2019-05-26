@@ -382,7 +382,15 @@ datExpr = t(cbat.rld)
 dim(datExpr)
 dim(datTraits)
 
-# datExpr=t(rld.df)
 
 #save data for full dataset
-save(datExpr, datTraits, file = "wgcna/wgcna_input.RData") #use the Rdata file for input to run WGCNA on full dataset
+save(datExpr, datTraits, file = "wgcna/all/wgcna_input.RData") #use the Rdata file for input to run WGCNA on full dataset
+
+#save for controls only
+dim(datTraits)
+dim(datExpr)
+datTraits = datTraits[grepl('C', datTraits$sample.names) | grepl('NoE', datTraits$sample.names),]
+datExpr = datExpr[as.character(datTraits$sample.names),]
+dim(datTraits)
+dim(datExpr)
+save(datExpr, datTraits, file="wgcna/controlsOnly/wgcna_input.RData")

@@ -1,0 +1,127 @@
+#This Walkthrough Contains instructions for RNAseq data analysis with DESeq and WGCNA
+#Groves Dixon
+#8-19-16
+#last updated 5-1-19
+
+
+#assumes you are staring with input file from initialize_counts_step2_explore.R: wgcna_input.RData
+
+
+##############################################################
+#Setting up TACC to run wgcna (only needs to be done once)
+
+#Do this in and IDEV session
+idev -A YOUR_ALLOCATION
+module load Rstats
+R
+
+#in the R environment:
+install.packages(c("matrixStats", "Hmisc", "splines", "foreach", "doParallel", "fastcluster", "dynamicTreeCut", "survival"))
+
+#note the http mirror wouldn't work for me, just chose a different one
+source("http://bioconductor.org/biocLite.R") 
+biocLite(c("GO.db", "preprocessCore", "impute"))
+install.packages("WGCNA")
+
+#(these may take a bit)
+##############################################################
+
+
+#WGCNA Step 1: import, clean and gather summary data
+#This was done with initialize_counts scripts
+
+
+#step 2: get soft threshold
+
+
+#It's easiest to run these in an idev session
+idev
+runMyR ~/bin/wgcna2_get_soft_threshold.R --input wgcna_input.RData --networkType signed
+
+
+#this will output a pdf
+#use that to set soft threshold for next step
+
+
+
+#step 3_a: manual module construction 
+export ALLOW_WGCNA_THREADS=1
+runMyR ~/bin/wgcna3b_step-wise_network_construction.R \
+ --softPower 15 \
+ --minSize 10 \
+ --mergeCutoff 0.5 \
+ --input wgcna_input.Rdata \
+ --networkType signed
+
+
+
+#outputs:
+	Clustering_module_eigengenes.pdf -- This is the clustering of the module eigengens, indicating how similar they are. Use this for merging modules that are similar
+	Plots_geneDendro-3.pdf           -- The gene cluster dendrogram with module color assignments plotted below
+	wgcna3b_manual_networkConstruction_output.RData -- The module data as an R data object. Upload this into wgcna4_correlation.R
+
+
+
+#step 4: send back to mac and run wgcna4_correlations.R to look at correlations
+
+#outputs:
+	in Code Chunk 6 you can output the genes for a particular module of interest
+	paste these here to test for GO enrichment: http://geneontology.org/page/go-enrichment-analysis
+
+#------------- Getting Gene names from EMBL notations -------------------
+#use bioMart http://useast.ensembl.org/biomart/martview/a27393ffc3f0d46122f6a540d864824d
+#export all of them with whatever annotaitons you want included
+#if you include description, some are missing, fill in like this:
+cat bioMart_ensemble_gene_names.txt | awk 'BEGIN{FS="\t"}{$3="_"$3;print}' > bioMart_ensemble_gene_names2.txt
+
+
+
+
+#------------------- PREPARING ANNOTATION FILES ----------------------------
+#Getting Zebrafish GO terms for Mann-Whitney-U tests
+
+#download the EMBL notations
+wget ftp://ftp.ensembl.org/pub/release-84/embl/danio_rerio/*.gz
+
+#unzip them
+gunzip *.gz
+
+#concatenate them into single annotation file
+>all_annotations.embl; for file in $(ls *.dat); do cat $file >> all_annotations.embl ; done
+
+#gather the gene names and the GO annotations
+echo parse_embl_annotations.py -i all_annotations.embl > parse
+launcher_creator.py -j parse -n parse -t 1:00:00 -a $allo
+sbatch parse.slurm
+
+
+
+#GO annotations are output in the format for Misha's GO MWU script (embl_to_go.txt)
+#Gene names are output in a tab delimited table
+
+#Build GOmwu input files from the DESeq scripts using the function write.gomwu.input()
+
+
+
+
+
+#--------- USING GAGE ---------------------
+#use R script gage_ethanol.R
+
+
+
+
+#---------- SETTING UP GIT REPOSITORY ---------------
+mkdir zebrafish_early_ethanol_RNASeq
+cd zebrafish_early_ethanol_RNASeq
+echo "# zebrafish_early_ethanol_RNASeq" >> README.md
+git init
+#move desired files into the directory
+git add *
+git commit
+#now create the repository on the github page with the same name as the directory
+#when you get to the initial page with "Quick Setup" copy the URL for the repository origin to paste below
+git remote add origin https://github.com/grovesdixon/zebrafish_early_ethanol_RNASeq.git
+git push -u origin master
+
+

@@ -2,9 +2,26 @@
 #steps for running analyses and figure plotting from RNA counts data
 #analyses are sorted into subdirectories in the repository
 
+1. get gene counts by following RNAseq_data_processing_pipeline.txt
 
-1. initialize_counts
+2. initialize_counts
 	initialize_counts_step1_normalize.R
 	initialize_counts_step2_explore.R
+	
+3. deseq
+	DEseq_early_ethanol.R
+	DEseq_early_ethanol_timesplit.R
 
-2. 
+4. wgcna
+	Run on TACC by following WGCNA_walkthrough.txt
+	wgcna4_module-correlations.R -- plot WGCNA heatmap and boxplots of module expression levels
+	
+5. goMWU
+	GO_MWU.R -- do GO enrichment for deseq and WGCNA results
+
+5. Kegg pathways
+	gage_ethanol.R -- plot kegg pathway figures
+	
+	
+6. Figure plotting
+	figure_plotting.R -- plot most figures other than the WGCNA figures

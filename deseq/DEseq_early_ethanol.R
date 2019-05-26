@@ -76,6 +76,7 @@ volcano_plot(res.eth, MAIN='Full Dataset\nEthanol Effect')
 res.names = merge_gene_names(data.frame(res.eth), sort.column='pvalue')
 dim(res.names)
 write.table(res.names, "results/ethanol_LRT_results.tsv", quote = F, sep = "\t")
+save(res.eth, file='deseq/ethanol_full_LRT_results.Rdata')
 
 #output significant genes
 #these can be used for GO enrichment on the Gene ontology website

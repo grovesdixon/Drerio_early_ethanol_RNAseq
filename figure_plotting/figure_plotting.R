@@ -2,12 +2,74 @@
 #plot the figures for publication
 
 library(tidyverse)
+library(dplyr)
 library(cowplot)
 
 
-
+setwd('~/gitreps/Drerio_early_ethanol_RNAseq/')
 lnames=load("datasets/large_ignored/initialize_countsImage1.Rdata")
 source("./initialize_counts/multivariate_functions.R")
+source("deseq/zebrafish_RNAseq_functions.R")
+
+
+
+# plot time modules ----------------------------------------------------------------
+ll=load('results/timeMods.Rdata')
+ll=load('datasets/large_ignored/raw_rld.Rdata')
+rld.df=data.frame(rld.df)
+modules = timeMods$module
+geneModuleMembership$gene = rownames(geneModuleMembership)
+head(geneModuleMembership)
+hubGenes = c()
+for (m in modules){
+  sub=geneModuleMembership[order(abs(geneModuleMembership[,m])),c(m,'gene')]
+  hub=sub[nrow(sub),'gene']
+  hubGenes = append(hubGenes, hub)
+}
+hdat = data.frame('module'=modules,
+              'hub' = hubGenes,
+              row.names=hubGenes, stringsAsFactors=F) %>% 
+  merge_gene_names()
+hdat
+
+#plot each of the time module hub genes for ethanol and controls
+plotList=list()
+for (i in 1:nrow(hdat)){
+  print(paste(i,'...',sep=''))
+  row=hdat[i,]
+  GENE=row[,'hub']
+  NAME = row[,'external_gene_name']
+  MODULE = sub('ME', '', row[,'module'])
+  if(is.na(NAME)){
+    NAME='none'
+  }
+  tdat = rld.df %>% 
+    mutate(gene=rownames(rld.df)) %>% 
+    filter(gene==GENE) %>% 
+    dplyr::select(-gene) %>% 
+    t() %>% 
+    data.frame()
+  colnames(tdat) = 'ge'
+  s=sub('NoE.', 'C', rownames(tdat), fixed=T)
+  s=sub('E.', 'E', s, fixed=T)
+  s=sapply(s, function(x) strsplit(x, '.', fixed=T)[[1]][1])
+  tdat$treat = substr(s, 1,1)
+  tdat$time=sub('h', '', substr(s, 2,5)) %>% as.numeric()
+  plt=tdat %>% 
+    group_by(treat, time) %>% 
+    ggplot(aes(x=time, y=ge, color=treat, fill=treat)) +
+    geom_jitter(width=0.2) +
+    geom_smooth(se=T) +
+    labs(x='hpf', y='Expression level',
+         subtitle=paste(GENE,NAME,sep='\n'),
+         title=MODULE) +
+    theme(plot.title = element_text(colour = 'black'),
+          legend.title = element_blank()) +
+    scale_x_continuous(breaks=c(6,8,10,14))
+  plotList[[i]]=plt
+}
+
+plot_grid(plotlist = plotList, nrow=2)
 
 
 # main heatmap ------------------------------------------------------------
