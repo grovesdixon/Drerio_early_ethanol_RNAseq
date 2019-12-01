@@ -126,17 +126,18 @@ print(paste(nSamples, "samples were kept"))
 
 
 #here we want to explore the dataset to decide what to do about batch effects and different treatments
-source("./initialize_counts/multivariate_functions.R")
+source("./deseq/zebrafish_RNAseq_functions.R")
 
 #PCA WITH DESEQ FUNCTION
 library(ggplot2)
+library(cowplot)
 library(DESeq2)
 NTOP = 25000
 point.size = 5
 plotPCA(rld,intgroup=c("treatment"),ntop= NTOP) #run with original DESeq function (just to prove they work the same)
-mod.plotPCA.df(df = rld.df, coldat = coldata, intgroup = 'treatment', main = "Ethanol Treatment") #with modified one
 mod.plotPCA.df(df = rld.df, coldat = coldata, intgroup = 'time', main = 'Time (hr)')
 mod.plotPCA.df(df = rld.df, coldat = coldata, intgroup = 'seqjob', main="Batch")
+mod.plotPCA.df(df = rld.df, coldat = coldata, intgroup = 'treatment', main = "Ethanol Treatment") #with modified one
 
 
 #look at PCs 3 -10:
