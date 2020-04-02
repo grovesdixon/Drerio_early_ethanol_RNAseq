@@ -1,18 +1,12 @@
 #figure_plotting.R
 #plot the figures for publication
-
-library(tidyverse)
-library(dplyr)
-library(cowplot)
-
-
-setwd('~/gitreps/Drerio_early_ethanol_RNAseq/')
-lnames=load("datasets/large_ignored/initialize_countsImage1.Rdata")
+rm(list=ls())
+lnames=load("datasets/raw_rld.Rdata")
 source("deseq/zebrafish_RNAseq_functions.R")
 
 # main heatmap ------------------------------------------------------------
 
-
+library(pheatmap)
 x=colnames(rld.df)
 y=sub("NoE", "C", x)
 z=sub("h.", "", y)
@@ -27,52 +21,67 @@ pheatmap(cor(rld.df, method = 'spearman'), labels_row=l2, labels_col=l2, treehei
 ptSIZE=3
 
 #developmental stage
-devPca = rld.df %>% 
-  mod.plotPCA.df(coldat = coldata, intgroup = 'time', main = 'Timepoint', legendTitle='Hpf', SIZE = ptSIZE)
-# devPca
-
-#batch pc1 and pc2
-batchPca = rld.df %>% 
-  mod.plotPCA.df(coldat = coldata,
-                 intgroup = 'seqjob',
-                 main = "Batch",
-                 legendTitle='Batch',
-                 SIZE = ptSIZE
-  )
-# batchPca 
+coldata$time = factor(coldata$time, levels = c('6', '8', '10', '14'))
 
 
-#ethanol pc1 and pc2
-ethPca = rld.df %>% 
-  mod.plotPCA.df(coldat = coldata %>% 
-                   mutate(t2=if_else(treatment=='c',
-                                     'Control',
-                                     'Ethanol')),
-                 intgroup = 't2',
-                 main = "Ethanol Treatment",
-                 legendTitle='Treatment', 
-                 SIZE = ptSIZE
-  )
-# ethPca
+pca_df = build_pca(rld.df,
+                   coldata,
+                   ntop = 25000,
+                   pcs = 9)
 
-#ethanol pc1 and pc2
-ethPca89 = rld.df %>% 
-  mod.plotPCA.df(pc1 = 8,
-                 pc2 = 9,
-                 coldat = coldata %>% 
-                   mutate(t2=if_else(treatment=='c',
-                                     'Control',
-                                     'Ethanol')),
-                 intgroup = 't2',
-                 main = "Ethanol Treatment",
-                 legendTitle='Treatment', 
-                 SIZE = ptSIZE+2
-  )
-# ethPca89
+#make changes (tidyverse kills attr)
+pca_df$PC1 = pca_df$PC1*-1
+pca_df$etoh = if_else(pca_df$treatment == 'c',
+                      'control',
+                      'ethanol')
 
-plot_grid(devPca, batchPca, ethPca, nrow=3)
-quartz()
-plot(ethPca89)
+devPca = plot_rld_pca (pca_df,
+              group_col = 'time',
+              pc1 = 1,
+              pc2 = 2,
+              subtitle = "Age (hpf)",
+              size = ptSIZE,
+              legend_title=NULL,
+              x_invert=1,
+              legend_position = 'right',
+              fix_coords = FALSE)
+
+
+batchPca = plot_rld_pca (pca_df,
+                       group_col = 'seqjob',
+                       pc1 = 1,
+                       pc2 = 2,
+                       subtitle = "Batch",
+                       size = ptSIZE,
+                       legend_title=NULL,
+                       x_invert=1,
+                       legend_position = 'right',
+                       fix_coords = FALSE)
+
+ethPca = plot_rld_pca (pca_df,
+                         group_col = 'etoh',
+                         pc1 = 1,
+                         pc2 = 2,
+                         subtitle = "Treatment",
+                         size = ptSIZE,
+                         legend_title=NULL,
+                         x_invert=1,
+                         legend_position = 'right',
+                         fix_coords = FALSE)
+
+ethPca89 = plot_rld_pca (pca_df,
+                       group_col = 'etoh',
+                       pc1 = 8,
+                       pc2 = 9,
+                       subtitle = "Treatment",
+                       size = ptSIZE,
+                       legend_title=NULL,
+                       x_invert=1,
+                       legend_position = 'right',
+                       fix_coords = FALSE)
+
+plot_grid(devPca, batchPca, ethPca, ethPca89, nrow=2)
+
 
 # volcano plots -----------------------------------------------------------
 
@@ -91,6 +100,7 @@ e=ggvolcano_plot(res.e, XLIM=XLIM, YLIM=F, addNames = NAME, topN = top, MAIN='Et
 t=ggvolcano_plot(res.t, XLIM=XLIM, YLIM=F, addNames = NAME, topN = top, MAIN='Ethanol Effect', submain='10 hour', xshift=c(-0.4, 0.4), yshift=0.6)
 f=ggvolcano_plot(res.f, XLIM=XLIM, YLIM=F, addNames = NAME, topN = top, MAIN='Ethanol Effect', submain='14 hour', xshift=0.4, yshift=0.4)
 
+plot_grid(a, e, t, f, nrow=2)
 
 #plot with color coding for overlapping significant between datasets
 s1 = rownames(res.eth)[res.eth$padj<0.1 & !is.na(res.eth$padj)]
@@ -114,32 +124,33 @@ g = data.frame(res.eth) %>%
   ggplot(aes(x=log2FoldChange, y=-log10(pvalue), colour=sig)) + 
   scale_colour_manual(values=c('black', 'red')) +
   geom_point(alpha=0.4, size=1.75) + 
+  lims(x=c(-2,2)) +
   
   geom_point(data=sub.eth, aes(x=log2FoldChange, y=-log10(pvalue)), color='blue') +
-  xlab("log2 fold difference") + 
-  ylab("-log10 p-value") +
-  guides(color=guide_legend(title="FDR < 0.1"))
+  xlab(bquote(log[2]~"fold difference")) + 
+  ylab('-'*log[10]~'p-value') +
+  guides(color=guide_legend(title="FDR < 0.1")) +
+  theme(legend.position = 'none')
 plot(g)
 
 
 
 # venn diagram ------------------------------------------------------------
-source('deseq/venn_diagram_functions.R')
-CUT=0.1
-sig.e=get.sig(res.e, TIME=8)
-sig.t=get.sig(res.t, TIME=10)
-sig.f=get.sig(res.f, TIME=14)
-s2=rownames(sig.e)
-s3=rownames(sig.t)
-s4=rownames(sig.f)
-intersection.list = threeway_venn(s2, s3, s4, CATEGORY=c('8hr', '10hr', '14hr'))
-print(intersection.list)
+#decided to do this manually
+res.eth %>% 
+  data.frame() %>% 
+  rownames_to_column('ensembl_gene_id') %>% 
+  right_join(snames, by = 'ensembl_gene_id') %>% 
+  arrange(desc(log2FoldChange)) %>% 
+  dplyr::select(external_gene_name, log2FoldChange, padj) %>% 
+  set_names(c('gene', 'log2 fold change', 'adj p-value')) %>% 
+  write_tsv(path='results/all_timepoint_sig.tsv')
 
 
 
 # plot time modules ----------------------------------------------------------------
 ll=load('results/timeMods.Rdata')
-ll=load('datasets/large_ignored/raw_rld.Rdata')
+ll=load('datasets/raw_rld.Rdata')
 rld.df=data.frame(rld.df)
 modules = timeMods$module
 geneModuleMembership$gene = rownames(geneModuleMembership)
@@ -156,11 +167,22 @@ hdat = data.frame('module'=modules,
   merge_gene_names()
 hdat
 
+#pu thenm in desired order
+rownames(hdat) = hdat$module
+ordered_modules = c('MEcoral2',
+                   'MEmagenta4',
+                   'MEthistle1',
+                   'MEmediumpurple4',
+                   'MEdarkolivegreen4',
+                   'MEhoneydew1')
+ohdat = hdat[ordered_modules, ]
+ohdat
+
 #plot each of the time module hub genes for ethanol and controls
 plotList=list()
-for (i in 1:nrow(hdat)){
+for (i in 1:nrow(ohdat)){
   print(paste(i,'...',sep=''))
-  row=hdat[i,]
+  row=ohdat[i,]
   GENE=row[,'hub']
   NAME = row[,'external_gene_name']
   MODULE = sub('ME', '', row[,'module'])
@@ -202,19 +224,93 @@ plot_grid(plotlist = plotList, nrow=2)
 #pick the gene
 g = c("ENSDARG00000015472")
 
+
 #pick the time point
+library(DESeq2)
 lnames = load('deseq/ethanol_full_LRT_results.Rdata') #All 
 resultsNames(dds.eth)
 myPlotCount(dds.eth, g, 'All timepoints')
 
+plotCounts()
 
 #run for each individual timepoint
 ll = load('deseq/ethanol_8hr_LRT_results.Rdata');print(ll)
 ll = load('deseq/ethanol_10hr_LRT_results.Rdata');print(ll)
 ll = load('deseq/ethanol_14hr_LRT_results.Rdata');print(ll)
-full = myPlotCount(dds.eth, g, 'All timepoints')
-eight = myPlotCount(dds.e, g, '8hr') + theme(axis.title.y=element_blank())
-ten = myPlotCount(dds.t, g, '10hr') + theme(axis.title.y=element_blank())
-fort = myPlotCount(dds.f, g, '14 hr') + theme(axis.title.y=element_blank())
-plot_grid(full, eight, ten, fort, nrow=1, label_x = 'Treatment', label_y='Normalized count', align='v', rel_widths=c(1,1,1,1))
+
+full = my_plotCounts(dds.eth, g, intgroup='treatment', main='All timepoints') + theme(axis.title.y=element_blank())
+eight = my_plotCounts(dds.e, g, intgroup='treatment', main='8hr') + theme(axis.title.y=element_blank())
+ten = my_plotCounts(dds.t, g, intgroup='treatment', main='10hr') + theme(axis.title.y=element_blank())
+fort = my_plotCounts(dds.f, g, intgroup='treatment', main='14hr') + theme(axis.title.y=element_blank())
+
+plot_grid(full, eight, ten, fort, nrow=2, label_x = 'Treatment', label_y='Normalized count', align='v', rel_widths=c(1,1,1,1))
+
+
+#double-check against original function
+plotCounts(dds.eth, g, intgroup='treatment', main='All timepoints')
+plotCounts(dds.e, g, intgroup='treatment', main='8hr')
+plotCounts(dds.t, g, intgroup='treatment', main='10hr')
+plotCounts(dds.f, g, intgroup='treatment', main='14hr')
+
+
+#check log2 fold changes
+res.eth[g,]
+res.e[g,]
+res.t[g,]
+res.f[g,]
+
+
+
+# TUKEYS ON FIGURE 7B-------------------------------------------------------------------------
+
+library(readxl)
+bdat = read_excel('datasets/my_control_vs_blebbistatin.xlsx')
+
+
+#get Tukey letters
+require(multcomp)
+bdat_grp = bdat %>% 
+  unite('group', geno, treat) %>% 
+  mutate(group = factor(group))
+aovgrp <- aov(width ~ group,
+              data = bdat_grp)
+summary(aovgrp)
+tm = glht(aovgrp, linfct = mcp(group = "Tukey"))
+tlet = cld(tm)
+my_let = tlet$mcletters$monospacedLetters
+tukey_df = data.frame(group = names(my_let),
+                      tukey = my_let) %>% 
+  mutate(tukey = trimws(tukey))
+
+#make plotting df
+mbdat = bdat %>% 
+  group_by(geno, treat) %>% 
+  summarize(mn = mean(width),
+            se = std.error(width)) %>% 
+  ungroup() %>% 
+  mutate(treat = factor(treat, levels = c('control', 'blebbistatin')),
+         geno = factor(geno, levels = c('wt.wt', 'wt.mut', 'mut.mut')),
+         group = paste(geno, treat, sep='_')) %>% 
+  left_join(tukey_df, by = 'group') 
+  
+
+
+#build plot
+letter_add = 10
+mbdat %>% 
+  ggplot(aes(x=geno, y=mn, fill=treat)) +
+  geom_bar(position='dodge', stat="identity") +
+  geom_errorbar(aes(ymin=mn-se, ymax=mn+se),
+                width=.2,                    # Width of the error bars
+                position=position_dodge(.9)) +
+  labs(y = 'projection count',
+       fill='') +
+  scale_fill_manual(values = grey.colors(2)) +
+  geom_text(aes(x=geno, y=mn+se+letter_add, label=tukey),
+            position=position_dodge(.9))
+
+
+
+
+
 

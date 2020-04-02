@@ -1,6 +1,11 @@
 #zebrafish_RNAseq_functions.R
 library(genefilter)
 library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(cowplot)
+theme_set(theme_cowplot())
+
 
 
 
@@ -41,10 +46,7 @@ ggvolcano_plot = function(deseq.res, sig.col='red', ns.col='black', addNames=F, 
 		g=g + geom_text(data=sig, nudge_x=xshift, nudge_y=yshift, aes(x=sig$log2FoldChange, y=-log10(sig$pvalue),
 		                     label=sig$external_gene_name), colour="black", size=3) + guides(size=FALSE)
 	}
-	print(g)
-	if (addNames){
-		return(sig)
-		}
+	return(g)
 }
 
 
@@ -123,92 +125,65 @@ output_module_for_gomwu = function(dat){
 library(genefilter)
 library(ggplot2)
 
-
-#modified version of the function provided with the DESeq package
-#allows for output of more principal components
-mod.plotPCA <- function (object, intgroup = "condition", ntop = 25000, returnData = F, pcs = 10, pc1 = 1, pc2 = 2, main = "\n") 
-{
-  rv <- rowVars(assay(object))
-  select <- order(rv, decreasing = TRUE)[seq_len(min(ntop, 
-                                                     length(rv)))]
-  pca <- prcomp(t(assay(object)[select, ]))
-  percentVar <- pca$sdev^2/sum(pca$sdev^2)
-  if (!all(intgroup %in% names(colData(object)))) {
-    stop("the argument 'intgroup' should specify columns of colData(dds)")
-  }
-  intgroup.df <- as.data.frame(colData(object)[, intgroup, 
-                                               drop = FALSE])
-  group <- if (length(intgroup) > 1) {
-    factor(apply(intgroup.df, 1, paste, collapse = " : "))
-  }
-  else {
-    colData(object)[[intgroup]]
-  }
-  d <- data.frame(pca$x[,1:pcs], group = group, 
-                  intgroup.df, name = colnames(object))
-  attr(d, "percentVar") <- percentVar[1:2]
-  g = ggplot(data = d, aes_string(x = paste('PC', pc1, sep = ''),
-                                  y = paste('PC', pc2, sep = ''), color = "group")) + 
-    geom_point(size = 2) + xlab(paste0(paste0(paste0("PC", pc1), ": "), round(percentVar[pc1] * 
-                                                                                100), "% variance")) + ylab(paste0(paste0(paste0("PC", pc2), ": "), round(percentVar[pc2] * 
-                                                                                                                                                            100), "% variance")) + coord_fixed()
-  g = g + ggtitle(main)
-  g = g + theme_bw()
-  print(g)
-  return(d)
-}
-
-
-
-printPCA = function(dat, pc1, pc2){
-  ggplot(data = dat, aes_string(x = paste('PC', pc1, sep = ''), y = paste('PC', pc2, sep = ''), color = "group")) + 
-    geom_point(size = 3) + xlab(paste0("PC1: ", round(percentVar[1] * 
-                                                        100), "% variance")) + ylab(paste0("PC2: ", round(percentVar[2] * 
-                                                                                                            100), "% variance")) + coord_fixed()
-}
-
-
-
-
-#modified version of the function provided in the DESeq package that can be run from a dataframe
-#instead of DESeqTransform object output from
-mod.plotPCA.df <- function (df, coldat, intgroup = "condition", ntop = 25000, returnData = F, pcs = 10, pc1 = 1, pc2 = 2, main = "\n", SIZE = 5, legendTitle='group') 
-{
+#function to plot pca from normalized expression counts
+build_pca = function(df,
+                     coldata,
+                     ntop = 25000,
+                     pcs = 6){
+  #get row varainces and select top
+  df = as.matrix(df)
   rv <- rowVars(df)
   select <- order(rv, decreasing = TRUE)[seq_len(min(ntop, 
                                                      length(rv)))]
+  #build pca
   pca <- prcomp(t(df[select, ]))
   percentVar <- pca$sdev^2/sum(pca$sdev^2)
-  intgroup.df <- as.data.frame(coldat[, intgroup, 
-                                      drop = FALSE])
-  group <- if (length(intgroup) > 1) {
-    factor(apply(intgroup.df, 1, paste, collapse = " : "))
-  }
-  else {
-    coldat[[intgroup]]
-  }
-  d <- data.frame(pca$x[,1:pcs], group = group, 
-                  intgroup.df, name = colnames(df))
-  attr(d, "percentVar") <- percentVar[1:2]
-  g = ggplot(data = d, aes_string(x = paste('PC', pc1, sep = ''),
-                                  y = paste('PC', pc2, sep = ''), color = "group")) + 
-    geom_point(size = SIZE) + xlab(paste0(paste0(paste0("PC", pc1), ": "), round(percentVar[pc1] * 
-                                                                                   100), "% variance")) + ylab(paste0(paste0(paste0("PC", pc2), ": "), round(percentVar[pc2] * 
-                                                                                                                                                               100), "% variance")) + coord_fixed()
-  g = g + 
-    labs(subtitle=main) +
-    guides(color=guide_legend(title=legendTitle))
-  # g = g + theme_bw()
-  # print(g)
-  if (returnData == T){
-    return(d)
-  } else {
-    return(g)
-  }
+  d = cbind(data.frame(pca$x[,1:pcs]),
+            coldata)
+  attr(d, "percentVar") <- percentVar[1:pcs]
+  return(d)
 }
 
-
-
+#function to plot PCA scatterplot from output from build_rld_pca
+plot_rld_pca = function(df,
+                        group_col = 'treatment',
+                        pc1 = 1,
+                        pc2 = 2,
+                        subtitle = "",
+                        size = 4,
+                        legend_title=NULL,
+                        x_invert=1,
+                        legend_position = 'none',
+                        fix_coords = TRUE){
+  #select PCs to plot and nvert X if needed
+  plt_df = tibble(x = df[,paste('PC', pc1, sep = '')]*x_invert,
+                  y = df[,paste('PC', pc2, sep = '')],
+                  col = factor(df[,group_col]))
+  #pull out the percent variances
+  percentVar = attr(df, "percentVar")
+  #build axis labs
+  xlab = paste0(paste0(paste0("PC", pc1), ": "), 
+                round(percentVar[pc1] * 100), "%")
+  ylab = paste0(paste0(paste0("PC", pc2), ": "), round(percentVar[pc2] * 100), "%")
+  g = plt_df %>% 
+    ggplot(aes(x=x,
+               y=y,
+               color=col)) + 
+    geom_point(size = size) +
+    labs(x = xlab,
+         y = ylab,
+         subtitle=subtitle,
+         color=legend_title) +
+    theme(legend.position=legend_position,
+          axis.ticks.x=element_blank(),
+          axis.ticks.y=element_blank(),
+          axis.text.x=element_blank(),
+          axis.text.y=element_blank())
+  if (fix_coords){
+    g = g + coord_fixed() 
+  }
+  return(g)
+}
 
 
 write.gomwu.input = function(dat, out.name){
@@ -241,4 +216,66 @@ pca.timepoint = function(rld.df, coldata, timepoint){
   mod.plotPCA.df(df = e2, coldat = e2c, intgroup = 'randomized.ethanol', main=bquote("Randomized Treatment (job1 "*.(timepoint)*"hr only)"), pc1=1, pc2=2)
 }
 
+
+#ggplot version of plotCounts() from DESEq2
+my_plotCounts = function(dds, gene, intgroup, main){
+  cnts <- counts(dds, normalized = TRUE, replaced = FALSE)[gene,]
+  group = factor(colData(dds)[[intgroup]])
+  group_nums = as.integer(group)
+  data <- data.frame(count = cnts, group = group_nums)
+  data %>% 
+    ggplot(aes(x=group, y=count)) +
+    geom_jitter(width = 0.1) +
+    geom_smooth(method='lm') +
+    scale_x_continuous(breaks = unique(group_nums),
+                       labels = levels(group),
+                       limits = c(min(group_nums) - 0.5, max(group_nums)+0.5)) +
+    labs(subtitle=main)
+}
+
+
+
+# 
+# #modified version of the function provided with the DESeq package
+# #allows for output of more principal components
+# mod.plotPCA <- function (object, intgroup = "condition", ntop = 25000, returnData = F, pcs = 10, pc1 = 1, pc2 = 2, main = "\n") 
+# {
+#   rv <- rowVars(assay(object))
+#   select <- order(rv, decreasing = TRUE)[seq_len(min(ntop, 
+#                                                      length(rv)))]
+#   pca <- prcomp(t(assay(object)[select, ]))
+#   percentVar <- pca$sdev^2/sum(pca$sdev^2)
+#   if (!all(intgroup %in% names(colData(object)))) {
+#     stop("the argument 'intgroup' should specify columns of colData(dds)")
+#   }
+#   intgroup.df <- as.data.frame(colData(object)[, intgroup, 
+#                                                drop = FALSE])
+#   group <- if (length(intgroup) > 1) {
+#     factor(apply(intgroup.df, 1, paste, collapse = " : "))
+#   }
+#   else {
+#     colData(object)[[intgroup]]
+#   }
+#   d <- data.frame(pca$x[,1:pcs], group = group, 
+#                   intgroup.df, name = colnames(object))
+#   attr(d, "percentVar") <- percentVar[1:2]
+#   g = ggplot(data = d, aes_string(x = paste('PC', pc1, sep = ''),
+#                                   y = paste('PC', pc2, sep = ''), color = "group")) + 
+#     geom_point(size = 2) + xlab(paste0(paste0(paste0("PC", pc1), ": "), round(percentVar[pc1] * 
+#                                                                                 100), "% variance")) + ylab(paste0(paste0(paste0("PC", pc2), ": "), round(percentVar[pc2] * 
+#                                                                                                                                                             100), "% variance")) + coord_fixed()
+#   g = g + ggtitle(main)
+#   g = g + theme_bw()
+#   print(g)
+#   return(d)
+# }
+# 
+# 
+# 
+# printPCA = function(dat, pc1, pc2){
+#   ggplot(data = dat, aes_string(x = paste('PC', pc1, sep = ''), y = paste('PC', pc2, sep = ''), color = "group")) + 
+#     geom_point(size = 3) + xlab(paste0("PC1: ", round(percentVar[1] * 
+#                                                         100), "% variance")) + ylab(paste0("PC2: ", round(percentVar[2] * 
+#                                                                                                             100), "% variance")) + coord_fixed()
+# }
 

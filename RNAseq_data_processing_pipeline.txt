@@ -99,6 +99,8 @@ ls E8h-5*
 ls E10h-5*
 		E10h-5_S27_R1_run4.fq  E10h-5_S27_R2_run4.fq
 
+#This is handled during mapping step by making empty dummy files below
+
 
 
 ####################
@@ -202,11 +204,12 @@ ls *.trim | wc -l
 
 #set up mapping
 #!note I tried outputting with BAM SortedByCoordinate, but picard said the files were not sorted. So instead output as unsorted, then sort with Samtools
+#!! also note. Should probabably have included batch identifiers here. Runs 1 and 2 are batch 1; Runs3 and 4 are batch 2.
 >starMapping
 for file in *R1*run1.trim
 do echo STAR --runMode alignReads --runThreadN 1 --outFileNamePrefix ${file/_R1_run1.trim} --outReadsUnmapped Fastx --outSAMtype BAM Unsorted --genomeDir $drerioStarGenomeDir --readFilesIn $file,${file/run1/run2} ${file/R1/R2},${file/R1_run1/R2_run2} >> starMapping; done
 
-for file in $(ls *R1*run3.trim)
+for file in *R1*run3.trim.gz
 do echo STAR --runMode alignReads --runThreadN 1 --outFileNamePrefix ${file/_R1_run3.trim} --outReadsUnmapped Fastx --outSAMtype BAM Unsorted --genomeDir $drerioStarGenomeDir --readFilesIn $file,${file/run3/run4} ${file/R1/R2},${file/R1_run3/R2_run4} >> starMapping; done
 
 wc -l starMapping
@@ -405,6 +408,98 @@ all_pipeline_counts.txt
 
 
 #From here follow steps in analysis_steps.txt
+
+
+#############################################
+################# SRA UPLOAD ################ 
+#############################################
+
+#since the reads were distributed in such a confusing way across runs will upload the trimmed files
+#these represent 55 samples from two experiments, 
+#one with run1 and run2 (25 samples), the other with run3 and run4 (30 samples)
+#To keep things matched with the original names, I'll use the sample names for the Biosamples as they were
+
+
+ls *run1.trim.gz | wc -l
+ls *run2.trim.gz | wc -l
+	#both give 50 = 25 x 2 PE fastq files
+
+ls *run3.trim.gz | wc -l
+ls *run4.trim.gz | wc -l
+	#both give 60 = 30 x 2 PE fastq files
+
+
+
+#set up batch1 and batch2 sample_names
+ls *R1_*run1.trim.gz | awk '{split($1, a, "_R1_");print a[1]}' > batch1_sample_names.txt
+ls *R1_*run3.trim.gz | awk '{split($1, a, "_R1_");print a[1]}' > batch2_sample_names.txt
+
+#check matchup
+wc -l batch1_sample_names.txt
+ls *R1_*run2.trim.gz | awk '{split($1, a, "_R1_");print a[1]}' | wc -l
+wc -l batch2_sample_names.txt
+ls *R1_*run4.trim.gz | awk '{split($1, a, "_R1_");print a[1]}' | wc -l
+
+#set up sample_titles
+ls *R1_*run1.trim.gz | awk '{split($1, a, "_S");print a[1]}' > batch1_sample_titles.txt
+ls *R1_*run3.trim.gz | awk '{split($1, a, "_S");print a[1]}' > batch2_sample_titles.txt
+
+
+#SET UP FILE NAMES IN SAME ORDER AS SAMPLE NAMES
+#first add the batch 1 file names (1-4)
+ls *R1_*run1.trim.gz > batch1_fileName1.txt
+ls *R2_*run1.trim.gz > batch1_fileName2.txt
+ls *R1_*run2.trim.gz > batch1_fileName3.txt
+ls *R2_*run2.trim.gz > batch1_fileName4.txt
+wc -l batch1_*fileName*.txt
+
+#gives
+	  25 batch1_fileName1.txt
+	  25 batch1_fileName2.txt
+	  25 batch1_fileName3.txt
+	  25 batch1_fileName4.txt
+	 100 total
+
+#repeat for batch 2
+ls *R1_*run3.trim.gz > batch2_fileName1.txt
+ls *R2_*run3.trim.gz > batch2_fileName2.txt
+ls *R1_*run4.trim.gz > batch2_fileName3.txt
+ls *R2_*run4.trim.gz > batch2_fileName4.txt
+wc -l batch2_*fileName*.txt
+
+#gives
+	  30 batch2_fileName1.txt
+	  30 batch2_fileName2.txt
+	  30 batch2_fileName3.txt
+	  30 batch2_fileName4.txt
+	 120 total
+
+
+#assemble for pasting into SRA_meta.xlsx
+cat batch1_fileName1.txt batch2_fileName1.txt > fileName1
+cat batch1_fileName2.txt batch2_fileName2.txt > fileName2
+cat batch1_fileName3.txt batch2_fileName3.txt > fileName3
+cat batch1_fileName4.txt batch2_fileName4.txt > fileName4
+
+wc -l fileName*
+
+#gives
+		  55 fileName1
+		  55 fileName2
+		  55 fileName3
+		  55 fileName4
+		 220 total
+
+
+*Note! SRA cannot process empty files, so the 'dummy' were made from single reads of their counterparts:
+head -n 4 E10h-5_S27_R1_run4.trim > E10h-5_S27_R1_run3.trim
+head -n 4 E10h-5_S27_R2_run4.trim > E10h-5_S27_R2_run3.trim
+head -n 4 E8h-5_S29_R1_run3.trim > E8h-5_S29_R1_run4.trim
+head -n 4 E8h-5_S29_R2_run3.trim > E8h-5_S29_R2_run4.trim
+gzip E10h-5_S27_R1_run3.trim
+gzip E10h-5_S27_R2_run3.trim
+gzip E8h-5_S29_R1_run4.trim
+gzip E8h-5_S29_R2_run4.trim
 
 
 

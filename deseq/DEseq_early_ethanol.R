@@ -13,7 +13,7 @@
 # source("http://bioconductor.org/biocLite.R")
 # biocLite("genefilter")
 ######################################################
-
+rm(list=ls())
 library(DESeq2)
 library(plotrix)
 
@@ -75,8 +75,8 @@ summary(res.eth)
 volcano_plot(res.eth, MAIN='Full Dataset\nEthanol Effect')
 res.names = merge_gene_names(data.frame(res.eth), sort.column='pvalue')
 dim(res.names)
-write.table(res.names, "results/ethanol_LRT_results.tsv", quote = F, sep = "\t")
-save(res.eth, file='deseq/ethanol_full_LRT_results.Rdata')
+write.table(res.names, "deseq/ethanol_LRT_results.tsv", quote = F, sep = "\t")
+save(res.eth, dds.eth, file='deseq/ethanol_full_LRT_results.Rdata')
 
 #output significant genes
 #these can be used for GO enrichment on the Gene ontology website
@@ -84,7 +84,7 @@ sig = na.omit(res.eth)
 sig = sig[sig$padj < .01,]
 head(sig)
 nrow(sig)
-write.table(sig, file = "results/significant_LRT_genes_ethanol.txt", quote = F, row.names = T)
+write.table(sig, file = "deseq/significant_LRT_genes_ethanol.txt", quote = F, row.names = T)
 
 #you can look at the actual difference in counts
 for (g in rownames(sig[1:10,])){
@@ -129,7 +129,7 @@ dds.e=DESeq(ddsHTSeq)
 
 #extract results
 resultsNames(dds.e)
-res.e =results(dds.e, contrast = c('treatment', 'e', 'c'), independentFiltering=F)
+res.e =results(dds.e, contrast = c('treatment', 'e', 'c'), independentFiltering=FALSE)
 res.e = res.e[order(res.e$pvalue),]
 head(res.e)
 summary(res.e)
@@ -137,8 +137,8 @@ volcano_plot(res.e, MAIN='Ethanol Effect 8hr')
 
 #write out
 enames = merge_gene_names(data.frame(res.e), sort.column='pvalue')
-save(dds.e, file='results/ethanol_8hr_LRT_results.Rdata')
-write.table(enames, "results/ethanol_8hr_LRT_results.tsv", quote = F, sep = "\t")
+save(res.e, dds.e, file='deseq/ethanol_8hr_LRT_results.Rdata')
+write.table(enames, "deseq/ethanol_8hr_LRT_results.tsv", quote = F, sep = "\t")
 
 
 #### TEST WITHIN 10HR TIMEPOINT
@@ -159,8 +159,8 @@ volcano_plot(res.t, MAIN='Ethanol Effect 10hr')
 
 #write out
 tnames = merge_gene_names(data.frame(res.t), sort.column='pvalue')
-save(dds.t, file='results/ethanol_10hr_LRT_results.Rdata')
-write.table(tnames, "results/ethanol_10hr_LRT_results.tsv", quote = F, sep = "\t")
+save(res.t, dds.t, file='deseq/ethanol_10hr_LRT_results.Rdata')
+write.table(tnames, "deseq/ethanol_10hr_LRT_results.tsv", quote = F, sep = "\t")
 
 #### TEST WITHIN 14HR TIMEPOINT
 #subset the counts
@@ -180,8 +180,8 @@ volcano_plot(res.f, MAIN='Ethanol Effect 14hr')
 
 #write out
 fnames = merge_gene_names(data.frame(res.f), sort.column='pvalue')
-save(dds.f, file='results/ethanol_14hr_LRT_results.Rdata')
-write.table(fnames, "results/ethanol_14hr_LRT_results.tsv", quote = F, sep = "\t")
+save(res.f, dds.f, file='deseq/ethanol_14hr_LRT_results.Rdata')
+write.table(fnames, "deseq/ethanol_14hr_LRT_results.tsv", quote = F, sep = "\t")
 
 #--------- SAVE/LOAD ---------------
 directory<-"~/gitreps/zebrafish_early_ethanol_RNASeq"

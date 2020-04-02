@@ -168,7 +168,7 @@ dim(timeMods)
 
 #get module membership
 geneModuleMembership = as.data.frame(cor(datExpr, MEs, use = "p")) %>% 
-  select(rownames(moduleTraitCor))
+  dplyr::select(rownames(moduleTraitCor))
 head(geneModuleMembership)
 
 #save both
@@ -283,20 +283,27 @@ plot.cols = modules
 quartz()
 par(mar=c(5,5))
 m='darkolivegreen4'
-for (m in modules){
+m='mediumpurple4'
+plt_list = list()
+for (m in rev(modules)){
+  print(m)
 	column = match(m, modNames);
 	moduleGenes = moduleColors==m;
 	
-	# sizeGrWindow(7, 7);
-	# par(mfrow = c(1,1));
-	verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
-	                   abs(geneTraitSignificance[moduleGenes, 1]),
-	                   xlab = paste("Module Membership in", m, "module"),
-	                   ylab = paste("Correlation with", TRAIT),
-	                   main = paste("Module membership vs. gene significance\n"),
-	                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = 'black', bg = m, pch = 21, cex = 1.5)
+	
+	plt_df = tibble(x=abs(geneModuleMembership[moduleGenes, column]),
+	                y=abs(geneTraitSignificance[moduleGenes, 1]))
+	plt = plt_df %>% 
+	  ggplot(aes(x=x, y=y)) +
+	  geom_point(pch=21, fill=m, color='black', size=3) +
+	  labs(x=m,
+	       y='ethanol correlation')
+	plt_list[[m]] = plt
 }
 
+pans = plot_grid(plotlist = plt_list)
+xlab = ggdraw() + draw_label('Module membership')
+plot_grid(pans, xlab, nrow=2, rel_heights = c(10,1))
 
 ###################################################
 #### LOOK AT RESULTS FOR A A PARTICULAR MODULE ####
@@ -348,7 +355,7 @@ abline(h=0, lty=2, col='black', lwd=1.5)
 
 #do ggplot boxplots
 library(ggplot2)
-p <- ggplot(mdat, aes(x=mod, y= log2FoldChange)) + geom_boxplot() + coord_cartesian(ylim = c(-2, 2)) + theme_bw() + xlab("Module") + ylab("Log2 Fold Difference")
+p <- ggplot(mdat, aes(x=mod, y= log2FoldChange)) + geom_boxplot() + coord_cartesian(ylim = c(-2, 2)) + xlab("Module") + ylab(bquote(log[2]~'fold difference'))
 p + geom_dotplot(binaxis='y', stackdir='center', dotsize=.75, fill=rev(mod)) + geom_hline(yintercept=0, linetype='dashed', color='black', size=1)
 
 

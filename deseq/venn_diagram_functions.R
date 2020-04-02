@@ -1,4 +1,9 @@
 #venn_diagram_functions.R
+
+
+#ENDED UP JUST DOING THIS BY HAND
+#BETTER WAY TO DO VENN DIAGRAMS IS 
+
 library(VennDiagram)
 
 get.sig=function(res, TIME){
@@ -16,19 +21,12 @@ pairwiseVenn=function(dat1, dat2, lab1, lab2){
 }
 
 
-threeway_venn = function(s1, s2, s3, CATEGORY){
-  i12 = intersect(s1,s2)
-  n12=length(intersect(s1,s2))#12
-  i13=intersect(s1, s3)
-  n13=length(intersect(s1, s3))#13
-  i14=intersect(s1, s4)
-  n14=length(intersect(s1, s4))#14
-  i23=intersect(s2, s3)
-  n23=length(intersect(s2, s3))#23
-  i24=intersect(s2, s4)
-  n24=length(intersect(s2, s4))#23
-  i123=intersect(  intersect(s1, s2), s3)
-  n123=length(intersect(  intersect(s1, s2), s3) )#123
+threeway_venn = function(v1, v2, v3, CATEGORY){
+  a1 = length(v1)
+  a2 = length(v2)
+  a3 = length(v3)
+  n12 = length(intersect(v1,v1))
+  n13 = length(intersect(v1,v3))
   grid.newpage()
   draw.triple.venn( area1 = nrow(sig.e),
                   area2 = nrow(sig.t),
@@ -94,3 +92,4 @@ fourway_venn = function(s1, s2, s3, s4, CATEGORY){
 	names(res) = c('i12', 'i13', 'i14', 'i23', 'i34', 'i123', 'i124', 'i134', 'i234', 'i1234')
 	return(res)
 }
+

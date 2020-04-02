@@ -10,6 +10,7 @@
 #The outputs are used as input for multivariate analyses and WGCNA
 
 #libs
+rm(list=ls())
 library('DESeq2')
 
 
@@ -65,6 +66,8 @@ time[grep('14h', time)] <- 14
 table(time)   #5 six-hour samples, 20 eight-hour, 20 ten-hour, 10 fourteen-hour
 
 #set up seqjob variable (batches of sequencing)
+#*this is a pretty janky way of doing this, but
+#should not be a problem when reads are downloaded from SRA with a trait table 
 seqjob = sample.names
 seqjob[grep('E.10', seqjob)] <- '1' #note the job1 samples have the '.' between E and time
 seqjob[grep('E.8', seqjob)] <- '1'  #note the job1 samples have the '.' between E and time
@@ -82,7 +85,7 @@ coldata <- data.frame(sample.names, treatment, time, seqjob)
 coldata
 table(coldata$treatment)
 table(coldata$time)
-
+write.csv(coldata, file='metadata/coldata.csv', row.names=FALSE)
 
 #write out input data for DESeq scripts
 save(counts, coldata, file='./datasets/DEseq_inputs.Rdata')
@@ -107,8 +110,8 @@ rld.df=assay(rld)
 colnames(rld.df) = colnames(counts)
 
 #save image of rld dataframe before reducing
-save(rld.df, file='./datasets/large_ignored/raw_rld.Rdata')
-save.image(file="datasets/large_ignored/initialize_countsImage1.Rdata")
+save(rld.df, coldata, file='./datasets/raw_rld.Rdata')
+save.image(file="datasets/initialize_countsImage1.Rdata")
 
 
 
