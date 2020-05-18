@@ -136,16 +136,68 @@ plot(g)
 
 
 # venn diagram ------------------------------------------------------------
-#decided to do this manually
-res.eth %>% 
-  data.frame() %>% 
-  rownames_to_column('ensembl_gene_id') %>% 
-  right_join(snames, by = 'ensembl_gene_id') %>% 
-  arrange(desc(log2FoldChange)) %>% 
-  dplyr::select(external_gene_name, log2FoldChange, padj) %>% 
-  set_names(c('gene', 'log2 fold change', 'adj p-value')) %>% 
-  write_tsv(path='results/all_timepoint_sig.tsv')
+#build a venn diagram of the overlapping significant genes from timepoints
+library(limma)
+library(ggforce)
 
+#gather the fdr p-values from deseq for each timepoint
+deseq_res_list = list(res.e, res.t, res.f)
+names(deseq_res_list) = c('8hr', '10hr', '14hr')
+pull_fdr = function(x){
+  data.frame(x) %>% 
+    rownames_to_column('gene') %>% 
+    dplyr::select(gene, padj)
+}
+pval_list = map(deseq_res_list, pull_fdr)
+map(pval_list, head)
+rdat = purrr::reduce(pval_list, full_join, by='gene') %>% 
+  column_to_rownames('gene')
+
+#build sig table for limma (0 or 1 for significance)
+CUT=0.1
+sigdat = apply(rdat < CUT , c(1,2), function(x) as.numeric(x))
+sigdat[is.na(sigdat)]<-0
+
+#double-check
+apply(sigdat, 2, sum)
+sum(res.e$padj < CUT, na.rm=TRUE)
+sum(res.t$padj < CUT, na.rm=TRUE)
+sum(res.f$padj < CUT, na.rm=TRUE)
+
+#set up venn diagram variables
+FILL=c('darkmagenta', 'navy', 'blue')
+LABELS=c('8hr', '10hr', '14hr')
+df.venn <- data.frame(x = c(-0.866, 0.866, 0),
+                      y = c(0.5, 0.5, -1),
+                      labels = factor(LABELS, levels=LABELS),
+                      fill = as.character(FILL))
+
+#use limma to get venn counts
+vdc <- vennCounts(sigdat)
+class(vdc) <- 'matrix'
+df.vdc <- as.data.frame(vdc)[-1,] %>%
+  mutate(x = c(0, 1.2, 0.8, -1.2, -0.8, 0, 0),
+         y = c(-1.5, 1, -0.5, 1, -0.5, 1, 0),
+         pcts = paste('(', signif(Counts/sum(Counts) , 3)*100, '%', ')', sep=''),
+         labs = paste(Counts, pcts, sep='\n'))
+
+
+#get solo calls
+cdf = df.vdc[,1:3]
+solo = df.vdc[apply(cdf,1,sum)==1,]
+
+
+#build venn
+ggplot(df.venn) +
+  geom_circle(aes(x0 = x, y0 = y, r = 1.5, fill = labels), alpha = .5, size = 0.5, colour = 'black') +
+  coord_fixed() +
+  theme_void() +
+  theme(legend.position = 'bottom') +
+  scale_fill_manual(values = as.character(df.venn$fill)) +
+  labs(fill = NULL) +
+  annotate("text", x = df.vdc$x, y = df.vdc$y+0.15, label = df.vdc$Counts, size = 5, color='white', hjust=0.5) +
+  annotate("text", x = df.vdc$x, y = df.vdc$y-0.15, label = df.vdc$pcts, size = 3.5, color='white', hjust=0.5) +
+  geom_circle(aes(x0 = x, y0 = y, r = 1.5), alpha = .5, size = 0.5, colour = 'black')
 
 
 # plot time modules ----------------------------------------------------------------
