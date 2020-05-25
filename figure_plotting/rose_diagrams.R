@@ -170,7 +170,7 @@ sdat2 %>%
 #2-way anova for the mean number of protrusions that are not leading or trailing (edge_type=='none)
 
 #subset 
-edge_type = 'none'
+edge_type = 'anterior-posterior'
 esub = sdat2 %>% 
   filter(edge==edge_type) 
 

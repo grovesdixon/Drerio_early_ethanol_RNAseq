@@ -20,7 +20,8 @@
 	GO_MWU.R -- do GO enrichment for deseq and WGCNA results
 
 5. Kegg pathways
-	gage_ethanol.R -- plot kegg pathway figures
+	kegg_tests.R     -- test for differentially expressed kegg pathways with Fisher's exact tests
+	plot_pathviews.R -- plot kegg select pathway figures
 	
 	
 6. Figure plotting

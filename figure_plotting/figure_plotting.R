@@ -200,6 +200,24 @@ ggplot(df.venn) +
   geom_circle(aes(x0 = x, y0 = y, r = 1.5), alpha = .5, size = 0.5, colour = 'black')
 
 
+
+# format a table for ethanol module genes ---------------------------------
+
+#uncomment to use (loading gene names takes a while)
+
+# ll=load('wgcna/module_membership.Rdata')
+# ll
+# head(mmdat)
+# ll=load('deseq/ethanol_full_LRT_results.Rdata')
+# head(res.eth)
+# mm = merge(mmdat, data.frame(res.eth), by = 0) %>% 
+#   filter(assignment %in% c("darkolivegreen4", "mediumpurple4")) %>% 
+#   column_to_rownames('Row.names')
+# mm_named = merge_gene_names(mm)
+# dim(mm_named)
+# mm_named %>% 
+#   write_tsv('results/ethanol_module_genes.tsv')
+
 # plot time modules ----------------------------------------------------------------
 ll=load('results/timeMods.Rdata')
 ll=load('datasets/raw_rld.Rdata')
@@ -281,9 +299,7 @@ g = c("ENSDARG00000015472")
 library(DESeq2)
 lnames = load('deseq/ethanol_full_LRT_results.Rdata') #All 
 resultsNames(dds.eth)
-myPlotCount(dds.eth, g, 'All timepoints')
-
-plotCounts()
+# myPlotCount(dds.eth, g, 'All timepoints')
 
 #run for each individual timepoint
 ll = load('deseq/ethanol_8hr_LRT_results.Rdata');print(ll)
@@ -335,6 +351,7 @@ tukey_df = data.frame(group = names(my_let),
   mutate(tukey = trimws(tukey))
 
 #make plotting df
+library(plotrix)
 mbdat = bdat %>% 
   group_by(geno, treat) %>% 
   summarize(mn = mean(width),

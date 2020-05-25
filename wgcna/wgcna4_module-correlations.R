@@ -11,6 +11,7 @@
 #
 #=====================================================================================
 # Load the WGCNA package
+rm(list=ls())
 library(WGCNA)
 # The following setting is important, do not omit.
 options(stringsAsFactors = FALSE);
@@ -263,6 +264,17 @@ names(GSPvalue) = paste("p.GS.", names(trait.df), sep="");
 modules = sub.colors
 plot.cols = modules 
 
+
+# output a gene module membership table -----------------------------------
+
+mmdat = geneModuleMembership
+mods = colnames(mmdat)
+highest = apply(mmdat, 1, function(x) mods[x==max(x)])
+mmdat$assignment = moduleColors
+head(mmdat)
+table(mmdat$assignment)
+save(mmdat, file='wgcna/module_membership.Rdata')
+
 #=====================================================================================
 #
 #  Code chunk 5 plot scatterplots of module membership and trait correlations
@@ -279,7 +291,8 @@ plot.cols = modules
 #it correlates with the trait.
 
 
-
+library(cowplot)
+theme_set(theme_cowplot())
 quartz()
 par(mar=c(5,5))
 m='darkolivegreen4'
