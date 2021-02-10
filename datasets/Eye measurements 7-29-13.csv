@@ -1,0 +1,127 @@
+location,treatment,measurement,genotype
+A1,control ,368.88,homo
+B1,control ,317,het
+C1,control ,352.43,het
+D1,control ,339.78,homo
+E1,control ,353.7,wt
+F1,control ,344.84,wt
+G1,control ,344.84,het
+H1,control ,380.91,het
+A2,control ,368.25,wt
+B2,control ,357.49,wt
+C2,high,306.24,wt
+D2,high,313.2,het
+E2,high,339.15,het
+F2,high,314.47,het
+G2,high,132.87,homo
+H2,high,318.9,homo
+A3,high,305.61,homo
+B3,high,308.77,het
+C3,high,332.82,homo
+D3,high,74.03,het
+E3,high,316.37,wt
+F3,high,328.39,wt
+G3,high,340.41,het
+H3,high,280.93,wt
+A4,high,301.18,het
+B4,high,300.55,wt
+C4,high,325.86,het
+D4,high,318.27,het
+E4,high,297.38,het
+F4,high,329.02,wt
+H4,high,310.04,wt
+A5,high,357.49,het
+B5,high,148.06,homo
+C5,high,116.42,het
+D5,high,82.89,het
+E5,high,315.73,het
+F5,high,186.66,het
+G5,high,332.18,het
+H5,high,335.98,het
+A6,high,317,het
+B6,sphere,340.41,wt
+C6,sphere,333.45,het
+D6,sphere,349.27,het
+E6,sphere,317,het
+F6,sphere,330.92,het
+G6,sphere,351.17,wt
+H6,sphere,348.64,wt
+A7,sphere,331.55,het
+C7,sphere,339.14,wt
+D7,sphere,321.43,het
+E7,sphere,387.87,homo
+F7,sphere,313.84,wt
+G7,sphere,307.51,wt
+H7,sphere,280.3,wt
+A8,sphere,320.16,het
+B8,sphere,296.75,homo
+C8,sphere,325.86,het
+D8,sphere,326.49,het
+E8,sphere,359.39,homo
+G8,sphere,175.9,homo
+H8,sphere,351.17,het
+A9,sphere,323.33,homo
+B9,sphere,75.93,homo
+C9,sphere,175.27,homo
+D9,sphere,333.45,wt
+E9,dome-30% epiboly,331.55,het
+F9,dome-30% epiboly,319.53,homo
+G9,dome-30% epiboly,357.49,het
+H9,dome-30% epiboly,317,homo
+A10,dome-30% epiboly,0,homo
+B10,dome-30% epiboly,308.77,homo
+C10,dome-30% epiboly,332.19,het
+D10,dome-30% epiboly,323.96,wt
+E10,dome-30% epiboly,334.72,wt
+F10,dome-30% epiboly,336.61,wt
+G10,dome-30% epiboly,316.37,het
+H10,dome-30% epiboly,337.25,wt
+A11,dome-30% epiboly,273.97,homo
+B11,dome-30% epiboly,329.02,wt
+C11,dome-30% epiboly,291.06,homo
+D11,dome-30% epiboly,332.19,het
+E11,dome-30% epiboly,320.8,het
+F11,dome-30% epiboly,324.59,wt
+G11,dome-30% epiboly,317,homo
+H11,dome-30% epiboly,303.8,het
+A12,dome-30% epiboly,289.79,het
+B12,dome-30% epiboly,317.63,het
+C12,dome-30% epiboly,291.69,het
+D12,dome-30% epiboly,328.39,homo
+E12,dome-30% epiboly,333.45,het
+F12,dome-30% epiboly,301.18,het
+G12,dome-30% epiboly,331.55,het
+H12,dome-30% epiboly,327.12,homo
+A1-2,dome-30% epiboly,108.83,homo
+B1-2,dome-30% epiboly,280.93,het
+C1-2,shield,329.02,wt
+D1-2,shield,305.61,het
+F1-2,shield,346.74,het
+G1-2,shield,320.16,het
+H1-2,shield,314.47,het
+A2-2,shield,134.77,homo
+B2-2,shield,305.61,wt
+C2-2,shield,306.24,het
+D2-2,shield,302.45,wt
+E2-2,shield,297.38,het
+F2-2,shield,339.78,het
+G2-2,shield,295.49,wt
+H2-2,shield,283.46,wt
+A3-2,shield,319.53,het
+B3-2,shield,174,homo
+C3-2,shield,286,wt
+D3-2,shield,307.51,het
+E3-2,shield,298.02,het
+F3-2,shield,134.77,homo
+G3-2,shield,137.94,homo
+H3-2,shield,280.3,wt
+A4-2,shield,299.92,het
+B4-2,shield,123.38,homo
+C4-2,shield,306.24,het
+D4-2,shield,313.2,het
+E4-2,shield,306.24,het
+F4-2,shield,320.16,het
+G4-2,shield,309.41,het
+H4-2,shield,299.28,het
+A5-2,shield,322.06,het
+B5-2,shield,352.43,wt

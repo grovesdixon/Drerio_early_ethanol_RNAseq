@@ -371,7 +371,18 @@ library(ggplot2)
 p <- ggplot(mdat, aes(x=mod, y= log2FoldChange)) + geom_boxplot() + coord_cartesian(ylim = c(-2, 2)) + xlab("Module") + ylab(bquote(log[2]~'fold difference'))
 p + geom_dotplot(binaxis='y', stackdir='center', dotsize=.75, fill=rev(mod)) + geom_hline(yintercept=0, linetype='dashed', color='black', size=1)
 
-
+#green alone
+library(tidyverse)
+mdat %>% 
+  filter(mod=='darkolivegreen4') %>% 
+  ggplot(aes(y=log2FoldChange, x=mod)) +
+  geom_boxplot() + 
+  coord_cartesian(ylim = c(-.7, .7)) + 
+  xlab("Module") + 
+  ylab(bquote(log[2]~'fold difference')) +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=1, color='black', fill='darkolivegreen4') + 
+  geom_hline(yintercept=0, linetype='dashed', color='black', size=0.5)
+  
 
 
 #pick the module to look at
@@ -396,6 +407,15 @@ dat
 fileName=paste(m, 'gene_data.tsv',sep="_")
 write.table(dat, file=paste('results', fileName, sep="/"), sep="\t", quote=F, row.names=F)
 
+
+#LOOK AT PREFERENCE FOR CHR4
+dat %>% 
+  na.omit() %>% 
+  ggplot(aes(x=factor(chromosome_name))) +
+  geom_bar()
+
+#GET PROPORTION CHR4
+table(dat$chromosome_name)
 
 #LOOK AT DISTRIBUTION ACCROSS CHROMOSOME 4
 datc4=na.omit(dat[dat$chromosome_name==4,])

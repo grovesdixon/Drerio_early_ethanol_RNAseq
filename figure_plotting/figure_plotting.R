@@ -4,6 +4,73 @@ rm(list=ls())
 lnames=load("datasets/raw_rld.Rdata")
 source("deseq/zebrafish_RNAseq_functions.R")
 
+
+# figure 1 Tukeys ---------------------------------------------------------
+
+sdat = read_csv('datasets/Eye measurements 7-29-13.csv')
+
+#convert treatment to hpf
+hpfs = c('control', '3.3 hpf', '4 hpf', '4.5 hpf', '6 hpf')
+names(hpfs) = c('control', 'high', 'sphere', 'dome-30% epiboly', 'shield')
+sdat$old_treatment = sdat$treatment
+sdat$treatment = hpfs[sdat$treatment]
+sdat$treatment = factor(sdat$treatment, levels = hpfs)
+
+#convert the genotype format
+genos = c('+/+', '+/-', '-/-')
+names(genos) = c('wt', 'het', 'homo')
+sdat$old_genotype = sdat$genotype
+sdat$genotype = genos[sdat$genotype]
+sdat$genotype = factor(sdat$genotype, levels = genos)
+
+
+#run a 3-way anova for interactions
+table(sdat$treatment, sdat$genotype)
+res_aov <- aov(measurement ~ treatment * genotype,
+                data = sdat)
+summary(res_aov)
+TukeyHSD(res_aov, which = "treatment:genotype")
+
+#write out the p-values
+pval_df = TukeyHSD(res_aov, which = "treatment:genotype")$`treatment:genotype` %>% 
+  data.frame()
+pval_df %>% 
+  rownames_to_column('group_pair') %>% 
+  write_csv('figure_plotting/fig1_Tukey_pval_df.csv')
+
+#get Tukey letters
+sdat_grp = sdat %>% 
+  unite('group', genotype, treatment) %>% 
+  mutate(group = factor(group))
+res_aovgrp <- aov(measurement ~ group,
+                  data = sdat_grp)
+summary(res_aovgrp)
+tm = glht(res_aovgrp, linfct = mcp(group = "Tukey"))
+tlet = cld(tm)
+my_let = tlet$mcletters$monospacedLetters
+tukey_df = data.frame(group = names(my_let),
+                      tukey = trimws(my_let))
+
+#plot barplot
+bplt = sdat %>% 
+  group_by(genotype, treatment) %>% 
+  summarize(mn = mean(measurement),
+            se = std.error(measurement),
+            N=n()) %>% 
+  unite('group', genotype, treatment, sep='_', remove=FALSE) %>% 
+  left_join(tukey_df, by = 'group') %>% 
+  ggplot(aes(x=treatment, y=mn, fill=genotype)) +
+  geom_bar(position='dodge', stat="identity") +
+  geom_errorbar(aes(ymin=mn-se, ymax=mn+se),
+                width=.2,                    # Width of the error bars
+                position=position_dodge(.9)) +
+  labs(y = 'lens-to-lens width',
+       fill='genotype',
+       x='developmental stage') +
+  geom_text(aes(x=treatment, y=mn+se+letter_add, label=tukey),
+            position=position_dodge(.9)) +
+  scale_fill_manual(values = grey.colors(3)) 
+
 # main heatmap ------------------------------------------------------------
 
 library(pheatmap)
@@ -285,8 +352,8 @@ for (i in 1:nrow(ohdat)){
     scale_x_continuous(breaks=c(6,8,10,14))
   plotList[[i]]=plt
 }
-
 plot_grid(plotlist = plotList, nrow=2)
+plotList1 = plotList
 
 
 # repeat plotting all other modules ---------------------------------------
@@ -342,13 +409,17 @@ for (i in 1:nrow(ohdat)){
     scale_x_continuous(breaks=c(6,8,10,14))
   plotList[[i]]=plt
 }
-
-length(plotList)
 plot_grid(plotlist = plotList, nrow=2)
+plotList2 = plotList
 
 
-
-
+#plot together
+plotListFull = append(plotList1, plotList2)
+l=cowplot::get_legend(plotListFull[[1]])
+mod = lapply(plotListFull, function(x) return(x+theme(legend.position = 'none')))
+mod[[12]] = l
+length(mod)
+plot_grid(plotlist = mod, nrow=4)
 
 # plot gpc4 ---------------------------------------------------------------
 
@@ -438,6 +509,8 @@ mbdat %>%
   scale_fill_manual(values = grey.colors(2)) +
   geom_text(aes(x=geno, y=mn+se+letter_add, label=tukey),
             position=position_dodge(.9))
+
+
 
 
 

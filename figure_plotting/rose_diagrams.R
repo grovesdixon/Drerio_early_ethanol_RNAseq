@@ -243,6 +243,16 @@ TukeyHSD(res_aov3, which = "edge:treatment")
 TukeyHSD(res_aov3, which = "genotype:treatment")
 TukeyHSD(res_aov3, which = "edge:genotype:treatment")
 
+
+#WRITE OUT P-VALUES FOR REVIEWERS WHO STRUGGLE WITH ABCs
+pval_df = TukeyHSD(res_aov3, which = "edge:genotype:treatment")$`edge:genotype:treatment` %>% 
+  data.frame()
+pval_df %>% 
+  rownames_to_column('group_pair') %>% 
+  mutate(group_pair = sub('wthet', '+/?', group_pair),
+         group_pair = sub('mutant', '-/-', group_pair) ) %>% 
+  write_csv('figure_plotting/fig7_Tukey_pval_df.csv')
+
 #get Tukey letters
 sdat_grp = sdat2 %>% 
   unite('group', genotype, treatment, edge) %>% 
