@@ -1,67 +1,67 @@
-comparison pair,diff,lwr,upr,p.adj,comparison pair letters,significant?
-anterior-posterior:-/-:ethanol-trailing:+/?:control,5.542857143,2.265297883,8.820416403,3.54E-05,b - a,yes
-anterior-posterior:-/-:ethanol-trailing:mutant:ethanol,5.142857143,1.865297883,8.420416403,1.42E-04,b - a,yes
-anterior-posterior:-/-:ethanol-trailing:mutant:control,4.892857143,1.38443956,8.401274725,9.85E-04,b - a,yes
-anterior-posterior:-/-:ethanol-leading:+/?:control,4.542857143,1.265297883,7.820416403,0.001080824,b - a,yes
-anterior-posterior:-/-:ethanol-trailing:+/?:ethanol,4.642857143,1.13443956,8.151274725,0.002118007,b - a,yes
-anterior-posterior:-/-:ethanol-leading:mutant:control,4.642857143,1.13443956,8.151274725,0.002118007,b - a,yes
-anterior-posterior:-/-:ethanol-leading:mutant:ethanol,3.857142857,0.86515429,6.849131425,0.003037747,b - a,yes
-anterior-posterior:-/-:ethanol-leading:+/?:ethanol,5.642857143,1.154874292,10.13083999,0.004230998,b - a,yes
-anterior-posterior:-/-:ethanol-anterior-posterior:mutant:control,4.392857143,0.88443956,7.901274725,0.004466007,b - a,yes
-anterior-posterior:-/-:ethanol-anterior-posterior:+/?:ethanol,4.142857143,0.63443956,7.651274725,0.00919666,b - a,yes
-anterior-posterior:-/-:ethanol-anterior-posterior:+/?:control,3.542857143,0.265297883,6.820416403,0.024106792,b - a,yes
-anterior-posterior:+/?:control-trailing:wthet:control,2,-1.540168615,5.540168615,0.723315952,a - a,no
-leading:-/-:ethanol-trailing:+/?:control,1.685714286,-1.591844975,4.963273546,0.822829957,a - a,no
-trailing:-/-:ethanol-anterior-posterior:+/?:control,-1.6,-5.140168615,1.940168615,0.914423972,a - a,no
-leading:+/?:ethanol-anterior-posterior:wthet:control,-2.1,-6.783202877,2.583202877,0.918465095,a - a,no
-leading:-/-:ethanol-leading:+/?:ethanol,1.785714286,-2.702268565,6.273697137,0.962893014,a - a,no
-trailing:-/-:ethanol-leading:mutant:ethanol,-1.285714286,-4.563273546,1.991844975,0.966417131,a - a,no
-anterior-posterior:+/?:ethanol-trailing:wthet:control,1.4,-2.354915851,5.154915851,0.976739385,a - a,no
-trailing:-/-:control-anterior-posterior:+/?:control,-1.35,-5.104915851,2.404915851,0.982283499,a - a,no
-anterior-posterior:+/?:ethanol-leading:wthet:ethanol,1.5,-3.347575519,6.347575519,0.994654955,a - a,no
-anterior-posterior:-/-:control-trailing:+/?:control,1.15,-2.604915851,4.904915851,0.995096508,a - a,no
-leading:-/-:ethanol-trailing:mutant:control,1.035714286,-2.472703297,4.544131868,0.996410548,a - a,no
-leading:-/-:control-anterior-posterior:+/?:control,-1.1,-4.854915851,2.654915851,0.996639509,a - a,no
-trailing:+/?:ethanol-anterior-posterior:wthet:control,-1.1,-4.854915851,2.654915851,0.996639509,a - a,no
-trailing:+/?:control-leading:wthet:control,-1,-4.540168615,2.540168615,0.99754957,a - a,no
-anterior-posterior:+/?:control-leading:wthet:control,1,-2.540168615,4.540168615,0.99754957,a - a,no
-trailing:-/-:ethanol-anterior-posterior:+/?:ethanol,-1,-4.754915851,2.754915851,0.99854579,a - a,no
-leading:+/?:ethanol-anterior-posterior:-/-:control,-1.25,-6.097575519,3.597575519,0.998913344,a - a,no
-leading:-/-:control-trailing:+/?:control,0.9,-2.854915851,4.654915851,0.999445604,a - a,no
-trailing:+/?:ethanol-trailing:wthet:control,0.9,-2.854915851,4.654915851,0.999445604,a - a,no
-leading:+/?:ethanol-leading:wthet:control,-1.1,-5.783202877,3.583202877,0.999541262,a - a,no
-anterior-posterior:-/-:control-anterior-posterior:+/?:control,-0.85,-4.604915851,2.904915851,0.999676223,a - a,no
-leading:-/-:ethanol-leading:mutant:control,0.785714286,-2.722703297,4.294131868,0.999707656,a - a,no
-leading:-/-:ethanol-trailing:+/?:ethanol,0.785714286,-2.722703297,4.294131868,0.999707656,a - a,no
-leading:-/-:ethanol-leading:+/?:control,0.685714286,-2.591844975,3.963273546,0.999848021,a - a,no
-leading:+/?:ethanol-leading:-/-:control,-1,-5.847575519,3.847575519,0.999867457,a - a,no
-trailing:+/?:ethanol-leading:wthet:ethanol,1,-3.847575519,5.847575519,0.999867457,a - a,no
-trailing:-/-:ethanol-anterior-posterior:mutant:control,-0.75,-4.504915851,3.004915851,0.999903294,a - a,no
-anterior-posterior:+/?:ethanol-trailing:-/-:control,0.75,-3.208028837,4.708028837,0.999942484,a - a,no
-trailing:-/-:control-trailing:+/?:control,0.65,-3.104915851,4.404915851,0.999976728,a - a,no
-trailing:-/-:ethanol-leading:+/?:control,-0.6,-4.140168615,2.940168615,0.999981207,a - a,no
-anterior-posterior:+/?:ethanol-anterior-posterior:wthet:control,-0.6,-4.354915851,3.154915851,0.999989677,a - a,no
-leading:+/?:ethanol-trailing:-/-:control,-0.75,-5.597575519,4.097575519,0.999992583,a - a,no
-leading:-/-:ethanol-anterior-posterior:mutant:control,0.535714286,-2.972703297,4.044131868,0.999993521,a - a,no
-trailing:-/-:ethanol-leading:mutant:control,-0.5,-4.254915851,3.254915851,0.999998434,a - a,no
-trailing:-/-:ethanol-trailing:+/?:ethanol,-0.5,-4.254915851,3.254915851,0.999998434,a - a,no
-anterior-posterior:+/?:ethanol-leading:-/-:control,0.5,-3.458028837,4.458028837,0.999999098,a - a,no
-anterior-posterior:-/-:control-trailing:mutant:control,0.5,-3.458028837,4.458028837,0.999999098,a - a,no
-anterior-posterior:+/?:ethanol-trailing:wthet:ethanol,0.5,-3.458028837,4.458028837,0.999999098,a - a,no
-trailing:-/-:ethanol-trailing:+/?:control,0.4,-3.140168615,3.940168615,0.999999722,a - a,no
-trailing:-/-:ethanol-leading:+/?:ethanol,0.5,-4.183202877,5.183202877,0.999999848,a - a,no
-anterior-posterior:+/?:ethanol-leading:wthet:control,0.4,-3.354915851,4.154915851,0.999999851,a - a,no
-leading:-/-:ethanol-anterior-posterior:+/?:control,-0.314285714,-3.591844975,2.963273546,0.999999952,a - a,no
-trailing:-/-:control-leading:+/?:control,-0.35,-4.104915851,3.404915851,0.999999964,a - a,no
-leading:-/-:ethanol-anterior-posterior:+/?:ethanol,0.285714286,-3.222703297,3.794131868,0.999999992,a - a,no
-trailing:-/-:ethanol-trailing:mutant:control,-0.25,-4.004915851,3.504915851,0.999999999,a - a,no
-trailing:-/-:control-leading:mutant:control,-0.25,-4.208028837,3.708028837,0.999999999,a - a,no
-anterior-posterior:-/-:control-leading:mutant:control,0.25,-3.708028837,4.208028837,0.999999999,a - a,no
-trailing:+/?:ethanol-trailing:-/-:control,0.25,-3.708028837,4.208028837,0.999999999,a - a,no
-trailing:+/?:ethanol-anterior-posterior:-/-:control,-0.25,-4.208028837,3.708028837,0.999999999,a - a,no
-anterior-posterior:+/?:ethanol-anterior-posterior:-/-:control,0.25,-3.708028837,4.208028837,0.999999999,a - a,no
-anterior-posterior:-/-:control-leading:+/?:control,0.15,-3.604915851,3.904915851,1,a - a,no
-leading:-/-:control-leading:+/?:control,-0.1,-3.854915851,3.654915851,1,a - a,no
-trailing:+/?:ethanol-leading:wthet:control,-0.1,-3.854915851,3.654915851,1,a - a,no
-leading:+/?:ethanol-trailing:wthet:control,-0.1,-4.783202877,4.583202877,1,a - a,no
-trailing:+/?:ethanol-leading:-/-:control,-3.11E-15,-3.958028837,3.958028837,1,a - a,no
+group_pair,diff,lwr,upr,p.adj
+trailing:+/?:control-leading:wthet:control,-1.0000000000000022,-4.540168614960491,2.5401686149604865,0.9975495699762121
+anterior-posterior:+/?:control-leading:wthet:control,0.9999999999999991,-2.5401686149604896,4.540168614960487,0.9975495699762122
+leading:-/-:control-leading:+/?:control,-0.09999999999999876,-3.854915851273523,3.6549158512735254,1
+trailing:-/-:control-leading:+/?:control,-0.3500000000000023,-4.104915851273526,3.404915851273522,0.9999999643392868
+anterior-posterior:-/-:control-leading:+/?:control,0.14999999999999813,-3.604915851273526,3.9049158512735223,0.9999999999965214
+leading:+/?:ethanol-leading:wthet:control,-1.1000000000000005,-5.783202877210715,3.583202877210714,0.9995412617775989
+trailing:+/?:ethanol-leading:wthet:control,-0.10000000000000187,-3.854915851273526,3.6549158512735223,1
+anterior-posterior:+/?:ethanol-leading:wthet:control,0.3999999999999986,-3.3549158512735255,4.154915851273523,0.9999998514010504
+leading:-/-:ethanol-leading:+/?:control,0.6857142857142855,-2.5918449746000896,3.9632735460286606,0.9998480213351649
+trailing:-/-:ethanol-leading:+/?:control,-0.6000000000000005,-4.140168614960489,2.940168614960488,0.9999812072042982
+anterior-posterior:-/-:ethanol-leading:+/?:control,4.542857142857144,1.2652978825427685,7.820416403171519,0.0010808243607153267
+anterior-posterior:+/?:control-trailing:wthet:control,2.0000000000000013,-1.5401686149604874,5.54016861496049,0.7233159523248078
+leading:-/-:control-trailing:+/?:control,0.9000000000000035,-2.8549158512735207,4.654915851273527,0.9994456040795806
+trailing:-/-:control-trailing:+/?:control,0.6499999999999999,-3.104915851273524,4.404915851273524,0.999976727637272
+anterior-posterior:-/-:control-trailing:+/?:control,1.1500000000000004,-2.6049158512735238,4.9049158512735245,0.9950965077213739
+leading:+/?:ethanol-trailing:wthet:control,-0.09999999999999831,-4.783202877210712,4.5832028772107165,1
+trailing:+/?:ethanol-trailing:wthet:control,0.9000000000000004,-2.8549158512735238,4.6549158512735245,0.9994456040795806
+anterior-posterior:+/?:ethanol-trailing:wthet:control,1.4000000000000008,-2.3549158512735233,5.154915851273525,0.9767393846554296
+leading:-/-:ethanol-trailing:+/?:control,1.6857142857142877,-1.5918449746000873,4.963273546028663,0.8228299565299868
+trailing:-/-:ethanol-trailing:+/?:control,0.4000000000000017,-3.140168614960487,3.9401686149604904,0.9999997221956121
+anterior-posterior:-/-:ethanol-trailing:+/?:control,5.542857142857146,2.265297882542771,8.82041640317152,3.5445467671979536e-5
+leading:-/-:control-anterior-posterior:+/?:control,-1.0999999999999979,-4.854915851273522,2.6549158512735263,0.9966395085649017
+trailing:-/-:control-anterior-posterior:+/?:control,-1.3500000000000014,-5.1049158512735255,2.4049158512735227,0.9822834991667739
+anterior-posterior:-/-:control-anterior-posterior:+/?:control,-0.850000000000001,-4.604915851273525,2.904915851273523,0.9996762228355742
+leading:+/?:ethanol-anterior-posterior:wthet:control,-2.0999999999999996,-6.783202877210714,2.5832028772107147,0.918465095273985
+trailing:+/?:ethanol-anterior-posterior:wthet:control,-1.100000000000001,-4.854915851273525,2.654915851273523,0.9966395085649016
+anterior-posterior:+/?:ethanol-anterior-posterior:wthet:control,-0.6000000000000005,-4.354915851273525,3.1549158512735236,0.9999896772253247
+leading:-/-:ethanol-anterior-posterior:+/?:control,-0.3142857142857136,-3.5918449746000887,2.9632735460286614,0.9999999516820832
+trailing:-/-:ethanol-anterior-posterior:+/?:control,-1.5999999999999996,-5.140168614960489,1.940168614960489,0.9144239724293161
+anterior-posterior:-/-:ethanol-anterior-posterior:+/?:control,3.5428571428571445,0.2652978825427694,6.820416403171519,0.02410679190299192
+trailing:-/-:control-leading:mutant:control,-0.25000000000000355,-4.208028837431469,3.708028837431462,0.999999999468846
+anterior-posterior:-/-:control-leading:mutant:control,0.2499999999999969,-3.7080288374314687,4.2080288374314625,0.999999999468846
+leading:+/?:ethanol-leading:-/-:control,-1.0000000000000018,-5.847575519464203,3.8475755194641996,0.9998674568612105
+trailing:+/?:ethanol-leading:-/-:control,-3.1086244689504383e-15,-3.9580288374314687,3.9580288374314625,1
+anterior-posterior:+/?:ethanol-leading:-/-:control,0.49999999999999734,-3.4580288374314683,4.458028837431463,0.9999990980434024
+leading:-/-:ethanol-leading:mutant:control,0.7857142857142843,-2.722703296710365,4.294131868138933,0.9997076557297369
+trailing:-/-:ethanol-leading:mutant:control,-0.5000000000000018,-4.254915851273526,3.2549158512735223,0.9999984335363598
+anterior-posterior:-/-:ethanol-leading:mutant:control,4.642857142857142,1.1344395604324933,8.151274725281791,0.0021180067597948993
+anterior-posterior:-/-:control-trailing:mutant:control,0.5000000000000004,-3.458028837431465,4.458028837431466,0.9999990980434024
+leading:+/?:ethanol-trailing:-/-:control,-0.7499999999999982,-5.5975755194642,4.097575519464203,0.9999925826507294
+trailing:+/?:ethanol-trailing:-/-:control,0.25000000000000044,-3.708028837431465,4.208028837431466,0.999999999468846
+anterior-posterior:+/?:ethanol-trailing:-/-:control,0.7500000000000009,-3.2080288374314647,4.708028837431467,0.9999424835648278
+leading:-/-:ethanol-trailing:mutant:control,1.0357142857142878,-2.4727032967103613,4.544131868138937,0.9964105480852095
+trailing:-/-:ethanol-trailing:mutant:control,-0.24999999999999822,-4.004915851273522,3.504915851273526,0.9999999990584143
+anterior-posterior:-/-:ethanol-trailing:mutant:control,4.892857142857146,1.3844395604324968,8.401274725281795,9.8499729381607e-4
+leading:+/?:ethanol-anterior-posterior:-/-:control,-1.2499999999999987,-6.0975755194642005,3.5975755194642027,0.9989133436314193
+trailing:+/?:ethanol-anterior-posterior:-/-:control,-0.25,-4.208028837431465,3.7080288374314656,0.999999999468846
+anterior-posterior:+/?:ethanol-anterior-posterior:-/-:control,0.25000000000000044,-3.708028837431465,4.208028837431466,0.999999999468846
+leading:-/-:ethanol-anterior-posterior:mutant:control,0.5357142857142874,-2.9727032967103617,4.044131868138937,0.9999935207087215
+trailing:-/-:ethanol-anterior-posterior:mutant:control,-0.7499999999999987,-4.504915851273523,3.0049158512735255,0.9999032944185391
+anterior-posterior:-/-:ethanol-anterior-posterior:mutant:control,4.392857142857146,0.8844395604324968,7.9012747252817945,0.004466006611654416
+trailing:+/?:ethanol-leading:wthet:ethanol,0.9999999999999987,-3.8475755194642027,5.8475755194642005,0.9998674568612105
+anterior-posterior:+/?:ethanol-leading:wthet:ethanol,1.4999999999999991,-3.3475755194642023,6.3475755194642005,0.9946549545324432
+leading:-/-:ethanol-leading:+/?:ethanol,1.785714285714286,-2.7022685653710385,6.27369713679961,0.9628930136248666
+trailing:-/-:ethanol-leading:+/?:ethanol,0.5,-4.183202877210714,5.183202877210714,0.9999998478360708
+anterior-posterior:-/-:ethanol-leading:+/?:ethanol,5.642857142857144,1.1548742917718195,10.13083999394247,0.004230998423365828
+anterior-posterior:+/?:ethanol-trailing:wthet:ethanol,0.5000000000000004,-3.458028837431465,4.458028837431466,0.9999990980434024
+leading:-/-:ethanol-trailing:+/?:ethanol,0.7857142857142874,-2.7227032967103617,4.294131868138937,0.9997076557297369
+trailing:-/-:ethanol-trailing:+/?:ethanol,-0.49999999999999867,-4.254915851273523,3.2549158512735255,0.9999984335363598
+anterior-posterior:-/-:ethanol-trailing:+/?:ethanol,4.642857142857146,1.1344395604324968,8.151274725281795,0.002118006759794233
+leading:-/-:ethanol-anterior-posterior:+/?:ethanol,0.2857142857142869,-3.222703296710362,3.794131868138936,0.9999999916611721
+trailing:-/-:ethanol-anterior-posterior:+/?:ethanol,-0.9999999999999991,-4.754915851273523,2.754915851273525,0.9985457904821218
+anterior-posterior:-/-:ethanol-anterior-posterior:+/?:ethanol,4.142857142857145,0.6344395604324959,7.6512747252817945,0.009196660429478976
+trailing:-/-:ethanol-leading:mutant:ethanol,-1.285714285714286,-4.563273546028661,1.991844974600089,0.9664171306131153
+anterior-posterior:-/-:ethanol-leading:mutant:ethanol,3.857142857142858,0.8651542897526414,6.849131424533075,0.0030377470364013615
+anterior-posterior:-/-:ethanol-trailing:mutant:ethanol,5.142857142857144,1.865297882542769,8.420416403171519,1.4209798134101614e-4

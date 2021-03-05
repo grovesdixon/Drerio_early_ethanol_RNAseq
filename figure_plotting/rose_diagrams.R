@@ -226,7 +226,6 @@ bars_2way
 
 
 # ASSEMBLE FINAL PLOT FOR SIZE --------------------------------------------
-quartz()
 little_pies
 big_pies
 bars_2way

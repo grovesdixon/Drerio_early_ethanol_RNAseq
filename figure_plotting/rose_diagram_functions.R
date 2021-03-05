@@ -6,6 +6,7 @@ library(readxl)
 library(cowplot)
 library(plotrix)
 library(NISTunits)
+library(multcomp)
 theme_set(theme_cowplot())
 
 #FUNCTIONS

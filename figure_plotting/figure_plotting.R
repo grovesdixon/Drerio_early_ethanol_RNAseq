@@ -3,7 +3,8 @@
 rm(list=ls())
 lnames=load("datasets/raw_rld.Rdata")
 source("deseq/zebrafish_RNAseq_functions.R")
-
+source('figure_plotting/rose_diagram_functions.R')
+library(plotrix)
 
 # figure 1 Tukeys ---------------------------------------------------------
 
@@ -52,6 +53,7 @@ tukey_df = data.frame(group = names(my_let),
                       tukey = trimws(my_let))
 
 #plot barplot
+letter_add = 0.4
 bplt = sdat %>% 
   group_by(genotype, treatment) %>% 
   summarize(mn = mean(measurement),
@@ -70,6 +72,7 @@ bplt = sdat %>%
   geom_text(aes(x=treatment, y=mn+se+letter_add, label=tukey),
             position=position_dodge(.9)) +
   scale_fill_manual(values = grey.colors(3)) 
+bplt
 
 # main heatmap ------------------------------------------------------------
 
@@ -460,6 +463,44 @@ res.t[g,]
 res.f[g,]
 
 
+# TUKEYS ON 5B ------------------------------------------------------------
+
+shdat = read_csv('datasets/shhpax2_01082016_normalization.csv')
+
+#run anova for interactions
+table(shdat$treatment, shdat$genotype)
+res_aov <- aov(shhpax2 ~ treatment * genotype,
+               data = shdat)
+summary(res_aov)
+TukeyHSD(res_aov, which = "treatment:genotype")
+
+#write out the p-values
+pval_df = TukeyHSD(res_aov, which = "treatment:genotype")$`treatment:genotype` %>% 
+  data.frame()
+pval_df %>% 
+  rownames_to_column('group_pair') %>% 
+  write_csv('figure_plotting/fig5b_Tukey_pval_df.csv')
+
+#get Tukey letters
+shdat_grp = shdat %>% 
+  unite('group', treatment, genotype) %>% 
+  mutate(group = factor(group)) %>% 
+  arrange(sample)
+res_aovgrp <- aov(shhpax2 ~ group,
+                  data = shdat_grp)
+summary(res_aovgrp)
+tm = glht(res_aovgrp, linfct = mcp(group = "Tukey"))
+tlet = cld(tm)
+my_let = tlet$mcletters$monospacedLetters
+tukey_df = data.frame(group = names(my_let),
+                      tukey = trimws(my_let))
+
+#confirm p-values match letters
+tukey_df 
+max(pval_df[grep('ethanol:mut', rownames(pval_df)), ]$p.adj) #all ethanol mut significant
+max(pval_df[grep('control:wt', rownames(pval_df)), ]$p.adj) #all control wt significant
+pval_df[grep('control:het', rownames(pval_df)), ] #n/s for ethanol:wt
+
 
 # TUKEYS ON FIGURE 7B-------------------------------------------------------------------------
 
@@ -494,7 +535,6 @@ mbdat = bdat %>%
          group = paste(geno, treat, sep='_')) %>% 
   left_join(tukey_df, by = 'group') 
   
-
 
 #build plot
 letter_add = 10
